@@ -19,3 +19,4 @@ int main() {
   msgctl(mid, IPC_RMID, NULL);   
   return 0;
 }
+

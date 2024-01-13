@@ -8,8 +8,10 @@ typedef struct msgbuf {
   char text[1024];
 } msg;
 
-int register_new_client() {
-  return msgget(0x123, 0600 | IPC_CREAT);
+// The client is responsible for monitoring new connections and storing credentials of upcoming users in the database
+
+void register_new_client() {
+
 }
 
 void send_to_clients() {
@@ -22,7 +24,7 @@ void receive_from_client() {
 
 int main(int argc, char *argv[])
 {
-  int mid = register_new_client();
+  int mid = msgget(0x123, 0600 | IPC_CREAT);
   msg m;
   msgrcv(mid, &m, sizeof(m), 5, 0);
   printf("%s\n", m.text);

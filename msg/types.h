@@ -2,7 +2,8 @@
 #define TYPES_H
 
 typedef enum MessageType {
-  REGISTER_REQUEST=1,
+  UKNOWN,
+  REGISTER_REQUEST,
   CLIENTS_NUMBER,
   CLIENT_ID
 } msg_type;

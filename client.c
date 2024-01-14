@@ -2,15 +2,15 @@
 // -> send message with type and priority
 //
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
-#include <sys/types.h>
 #include "msg/types.h"
+#include "lib/utils.h"
 
 msg_type mtype;
-int msgid;
+int smsgid, cmsgid;
+key_t cid;
 
 void send_to_server() {
 
@@ -29,30 +29,23 @@ void receive_from_server() {
 void establish_connection() {
   // asking the server for clients number
   mtype = REGISTER_REQUEST;
-  msgid = msgget(0x123, 0600|IPC_CREAT);
-  if(msgid == -1) {
-    perror("getting queue");
-    exit(-1);
-  }
-  msg_buf mbuf;
-  sprintf(mbuf.text, "%s", "connecting");
-  mbuf.type = mtype;
+  smsgid = msgget(0x123, 0600|IPC_CREAT);
+  if(smsgid == -1) 
+    panic("cannot connect to the server queue");
+  
+  msg_buf mbuf = {mtype};
+  sprintf(mbuf.text, "%s", "connection request");
   printf("sending message to the server: %s\n", mbuf.text);
-  int res = msgsnd(msgid, &mbuf, strlen(mbuf.text) + 1, 0);
-  if(res == -1) {
-    perror("sending");
-    exit(-1);
-  }
-  printf("message sent to the server with result: %d\n", res);
-
+  if(msgsnd(smsgid, &mbuf, strlen(mbuf.text) + 1, 0) == -1)
+    panic("cannot send the connection request");
 }
 
-void create_client_channel() {
+int create_client_channel() {
   // fedback from the server
   mtype = CLIENTS_NUMBER;
   msg_buf mbuf;
   printf("getting info about clients number\n");
-  msgrcv(msgid, &mbuf, sizeof(mbuf), mtype, 0);
+  msgrcv(smsgid, &mbuf, sizeof(mbuf), mtype, 0);
   printf("%s\n", mbuf.text);
   int clients_number;
   sscanf(mbuf.text, "%d", &clients_number);
@@ -60,7 +53,7 @@ void create_client_channel() {
 
   // opening own channel for upcoming messages with unique id
   key_t ch = ftok("channel-key", clients_number); //TODO: to actually open that queue
-  int own_queue = msgget(ch, 0600 | IPC_CREAT);
+  cmsgid = msgget(ch, 0600 | IPC_CREAT);
   printf("created own channel: ");
   printf("%i\n", ch);
 
@@ -69,6 +62,15 @@ void create_client_channel() {
   // mbuf.type = 5;
   //TODO: including in landing message for the server the id of self-created channel (which will be treated as a client id)
   // msgsnd(mid, &m, strlen(m.text) + 1, 0);
+  return ch;
+}
+
+void send_client_id() {
+  mtype = CLIENT_ID;
+  msg_buf mbuf = {mtype};
+  sprintf(mbuf.text, "%d", cid);
+  if(msgsnd(smsgid, &mbuf, strlen(mbuf.text) + 1, 0) == -1)
+    panic("cannot send the client id");
 }
 
 void subscribe(){
@@ -78,6 +80,9 @@ void subscribe(){
 int main(int argc, char *argv[])
 {
   establish_connection();
-  create_client_channel();
+  cid = create_client_channel();
+  if(msgctl(cmsgid, IPC_RMID, NULL) == -1)
+    panic("cannot close the client's queue");
+
   return 0;
 }

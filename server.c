@@ -1,64 +1,76 @@
-// User list
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <sys/msg.h>
 #include <unistd.h>
-#include <sys/wait.h>
 #include "msg/types.h"
+#include "lib/utils.h"
 
 struct{} clients[100];
 
 msg_type mtype;
 
-int clients_number = 0;
+int msgid, cn = 0;
 
 // The client is responsible for monitoring new connections and storing credentials of upcoming users in the database
 
+void send_clients_number();
+
 void register_new_client() {
-
-}
-
-void send_to_clients() {
-
-}
-
-void receive_from_client() {
-
-}
-
-int main(int argc, char *argv[])
-{
-  // opening a message queue for clients "owned" by the server
-  int msgid = msgget(0x123, 0600|IPC_CREAT);
-  if(msgid == -1) {
-    perror("connecting to message queue");
-    exit(-1);
-  }
-
-  msg_buf mbuf;
   mtype = REGISTER_REQUEST;
+  msg_buf mbuf;
   printf("waiting for a client\n");
   if(msgrcv(msgid, &mbuf, sizeof(mbuf), mtype, 0) == -1) {
-    perror("receiving");
+    perror("cannot connect with the client");
     exit(-1);
   }
   printf("new client arrived\n");
 
-  clients_number++;
-  printf("increasing number of clients\n");
+  cn++;
+  send_clients_number();
+}
+
+void send_clients_number() {
   mtype = CLIENTS_NUMBER;
-  msg_buf cmbuf;
-  sprintf(cmbuf.text, "%d", clients_number);
-  cmbuf.type = mtype;
+  msg_buf cmbuf = {mtype};
+  cn++;
+  sprintf(cmbuf.text, "%d", cn);
   printf("sending number of clients: %s\n", cmbuf.text);
   if(msgsnd(msgid, &cmbuf, strlen(cmbuf.text) + 1, 0) == -1) {
-    perror("sending number of clients");
+    perror("cannot send the number of clients");
+    exit(-1);
+  }
+}
+
+void handle_request() {
+  mtype = UKNOWN;
+  msg_buf mbuf;
+
+  if(msgrcv(msgid, &mbuf, sizeof(mbuf), mtype, 0) == -1) {
+    perror("cannot handle upcoming requests");
     exit(-1);
   }
 
-  // msgrcv(mid, &m, sizeof(m), 5, 0);
-  // printf("%s\n", m.text);
+  switch(mbuf.type) {
+  case REGISTER_REQUEST:
+    send_clients_number();
+    break;
+  default:
+    panic("invalid (as far) request received");
+  }
+}
+
+
+int main(int argc, char *argv[])
+{
+  // opening a message queue for clients "owned" by the server
+  msgid = msgget(0x123, 0600|IPC_CREAT);
+  if(msgid == -1)
+    panic("cannot connect to the server queue");
+
+  for(;;) {
+    handle_request();
+  }
   msgctl(msgid, IPC_RMID, NULL);
   return 0;
 }

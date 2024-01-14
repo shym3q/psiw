@@ -14,6 +14,7 @@ int msgid, cn = 0;
 
 void handle_request();
 void send_clients_number();
+void await_client_id();
 
 int main(int argc, char *argv[])
 {
@@ -22,6 +23,7 @@ int main(int argc, char *argv[])
   if(msgid == -1)
     panic("cannot connect to the server queue");
 
+  // the main loop
   for(;;) {
     handle_request();
   }
@@ -30,7 +32,7 @@ int main(int argc, char *argv[])
 }
 
 void handle_request() {
-  mtype = UKNOWN;
+  mtype = UNKNOWN;
   msg_buf mbuf;
 
   if(msgrcv(msgid, &mbuf, sizeof(mbuf), mtype, 0) == -1)
@@ -39,9 +41,10 @@ void handle_request() {
   switch(mbuf.type) {
   case REGISTER_REQUEST:
     send_clients_number();
+    await_client_id();
     break;
   default:
-    panic("invalid (as far) request received");
+    panic("invalid (so far) request received");
   }
 }
 
@@ -50,7 +53,17 @@ void send_clients_number() {
   msg_buf cmbuf = {mtype};
   cn++;
   sprintf(cmbuf.text, "%d", cn);
-  printf("sending number of clients: %s\n", cmbuf.text);
+  printf("sending the number of clients: %s\n", cmbuf.text);
   if(msgsnd(msgid, &cmbuf, strlen(cmbuf.text) + 1, 0) == -1)
     panic("cannot send the number of clients");
+}
+
+void await_client_id() {
+  mtype = CLIENT_ID;
+  msg_buf mbuf;
+  printf("waiting for a client's id\n");
+  if(msgrcv(msgid, &mbuf, sizeof(mbuf), mtype, 0) == -1)
+    panic("cannot receive upcoming client's id");
+
+  printf("received the client's id: %s\n", mbuf.text);
 }

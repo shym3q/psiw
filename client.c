@@ -51,7 +51,7 @@ int create_client_channel() {
   sscanf(mbuf.text, "%d", &clients_number);
   printf("received a number of clients: %i\n", clients_number);
 
-  // opening own channel for upcoming messages with unique id
+  // opening an own channel for upcoming messages with unique id
   key_t ch = ftok("channel-key", clients_number); //TODO: to actually open that queue
   cmsgid = msgget(ch, 0600 | IPC_CREAT);
   printf("created own channel: ");

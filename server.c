@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <sys/msg.h>
@@ -6,60 +5,15 @@
 #include "msg/types.h"
 #include "lib/utils.h"
 
+// The client is responsible for monitoring new connections and storing credentials of upcoming users in the database
+
 struct{} clients[100];
 
 msg_type mtype;
-
 int msgid, cn = 0;
 
-// The client is responsible for monitoring new connections and storing credentials of upcoming users in the database
-
+void handle_request();
 void send_clients_number();
-
-void register_new_client() {
-  mtype = REGISTER_REQUEST;
-  msg_buf mbuf;
-  printf("waiting for a client\n");
-  if(msgrcv(msgid, &mbuf, sizeof(mbuf), mtype, 0) == -1) {
-    perror("cannot connect with the client");
-    exit(-1);
-  }
-  printf("new client arrived\n");
-
-  cn++;
-  send_clients_number();
-}
-
-void send_clients_number() {
-  mtype = CLIENTS_NUMBER;
-  msg_buf cmbuf = {mtype};
-  cn++;
-  sprintf(cmbuf.text, "%d", cn);
-  printf("sending number of clients: %s\n", cmbuf.text);
-  if(msgsnd(msgid, &cmbuf, strlen(cmbuf.text) + 1, 0) == -1) {
-    perror("cannot send the number of clients");
-    exit(-1);
-  }
-}
-
-void handle_request() {
-  mtype = UKNOWN;
-  msg_buf mbuf;
-
-  if(msgrcv(msgid, &mbuf, sizeof(mbuf), mtype, 0) == -1) {
-    perror("cannot handle upcoming requests");
-    exit(-1);
-  }
-
-  switch(mbuf.type) {
-  case REGISTER_REQUEST:
-    send_clients_number();
-    break;
-  default:
-    panic("invalid (as far) request received");
-  }
-}
-
 
 int main(int argc, char *argv[])
 {
@@ -73,4 +27,30 @@ int main(int argc, char *argv[])
   }
   msgctl(msgid, IPC_RMID, NULL);
   return 0;
+}
+
+void handle_request() {
+  mtype = UKNOWN;
+  msg_buf mbuf;
+
+  if(msgrcv(msgid, &mbuf, sizeof(mbuf), mtype, 0) == -1)
+    panic("cannot handle upcoming requests");
+
+  switch(mbuf.type) {
+  case REGISTER_REQUEST:
+    send_clients_number();
+    break;
+  default:
+    panic("invalid (as far) request received");
+  }
+}
+
+void send_clients_number() {
+  mtype = CLIENTS_NUMBER;
+  msg_buf cmbuf = {mtype};
+  cn++;
+  sprintf(cmbuf.text, "%d", cn);
+  printf("sending number of clients: %s\n", cmbuf.text);
+  if(msgsnd(msgid, &cmbuf, strlen(cmbuf.text) + 1, 0) == -1)
+    panic("cannot send the number of clients");
 }

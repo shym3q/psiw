@@ -1,6 +1,6 @@
 // What client can do:
 // -> send message with type and priority
-//
+
 #include <stdio.h>
 #include <string.h>
 #include <sys/ipc.h>
@@ -11,7 +11,6 @@
 msg_type mtype;
 int smsgid, cmsgid;
 key_t cid;
-
 
 // The client tries to establish a connection with the server.
 
@@ -51,20 +50,17 @@ void send_client_id() {
     panic("cannot send the client's id");
 }
 
-void send_to_server() {
-  // TODO
-}
+void subscribe() {
+  mtype = SUBSCRIBE_TOPIC;
+  pingbuf mbuf = {mtype};
+  printf("pinging the server\n");
+  if(msgsnd(smsgid, &mbuf, 0, 0) == -1)
+    panic("cannot ping the server");
 
-// -> receive message in synchronious or asynchronious way
-// synchronious: on demand
-// asynchronious: automatically
-
-void receive_from_server() {
-  // TODO
-}
-
-void subscribe(){
-  // TODO
+  t_msgbuf tmbuf = {mtype, {cid, "i love rust"}};
+  if(msgsnd(smsgid, &tmbuf, sizeof(tmbuf.cmsg), 0) == -1)
+    panic("cannot send the subscription topic");
+  printf("the subscription topic send\n");
 }
 
 int main(int argc, char *argv[])
@@ -72,6 +68,7 @@ int main(int argc, char *argv[])
   establish_connection();
   cid = create_client_channel();
   send_client_id();
+  subscribe();
   if(msgctl(cmsgid, IPC_RMID, NULL) == -1)
     panic("cannot close the client's queue");
 

@@ -1,24 +1,29 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-typedef enum MessageType {
-  UNKNOWN,
+struct msg {
+  int id;
+  char text[1024];
+};
+
+typedef enum {
+  GENERIC,
   REGISTER_REQUEST,
   CLIENTS_NUMBER,
   CLIENT_ID,
   SUBSCRIBE_TOPIC
 } msg_type;
 
-typedef struct MsgBuf {
+typedef struct {
   long type;
-  char text[1024];
-} msg_buf;
+  struct msg cmsg;
+} t_msgbuf;
 
-typedef struct Ping {
+typedef struct {
   long type;
 } pingbuf;
 
-typedef struct DecMsgBuf {
+typedef struct {
   long type;
   int i;
 } dec_msgbuf;

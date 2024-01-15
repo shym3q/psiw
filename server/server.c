@@ -7,14 +7,13 @@
 
 // The client is responsible for monitoring new connections and storing credentials of upcoming users in the database
 
-struct{} clients[100];
-
 msg_type mtype;
 int msgid, cn = 0;
 
 void handle_request();
 void send_clients_number();
 void await_client_id();
+void await_client_topic();
 
 int main(int argc, char *argv[])
 {
@@ -23,7 +22,7 @@ int main(int argc, char *argv[])
   if(msgid == -1)
     panic("cannot connect to the server queue");
 
-  // the main loop
+  // the main loop of the server
   for(;;) {
     handle_request();
   }
@@ -32,16 +31,19 @@ int main(int argc, char *argv[])
 }
 
 void handle_request() {
-  mtype = UNKNOWN;
-  msg_buf mbuf;
+  mtype = GENERIC;
+  pingbuf pbuf;
 
-  if(msgrcv(msgid, &mbuf, sizeof(mbuf), mtype, 0) == -1)
+  if(msgrcv(msgid, &pbuf, sizeof(pbuf), mtype, 0) == -1)
     panic("cannot handle upcoming requests");
 
-  switch(mbuf.type) {
+  switch(pbuf.type) {
   case REGISTER_REQUEST:
     send_clients_number();
     await_client_id();
+    break;
+  case SUBSCRIBE_TOPIC:
+    await_client_topic();
     break;
   default:
     panic("invalid (so far) request received");
@@ -64,4 +66,14 @@ void await_client_id() {
     panic("cannot receive upcoming client's id");
 
   printf("received the client's id: %d\n", mbuf.i);
+}
+
+void await_client_topic() {
+  mtype = SUBSCRIBE_TOPIC;
+  t_msgbuf ctmbuf;
+  printf("waiting for a client's subscription topic\n");
+  if(msgrcv(msgid, &ctmbuf, sizeof(ctmbuf), mtype, 0) == -1)
+    panic("cannot receive upcoming client's subscription topic\n");
+
+  printf("received the client's (%i) subscription topic: %s\n", ctmbuf.cmsg.id, ctmbuf.cmsg.text);
 }

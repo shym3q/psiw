@@ -1,7 +1,5 @@
-#include <string.h>
 #include <stdio.h>
 #include <sys/msg.h>
-#include <unistd.h>
 #include "../msg/types.h"
 #include "../lib/utils.h"
 
@@ -12,7 +10,7 @@ int msgid, cn = 0;
 
 void handle_request();
 void send_clients_number();
-void await_client_id();
+void await_client_credentials();
 void await_client_topic();
 
 int main(int argc, char *argv[])
@@ -40,7 +38,7 @@ void handle_request() {
   switch(pbuf.type) {
   case REGISTER_REQUEST:
     send_clients_number();
-    await_client_id();
+    await_client_credentials();
     break;
   case SUBSCRIBE_TOPIC:
     await_client_topic();
@@ -58,14 +56,13 @@ void send_clients_number() {
     panic("cannot send the number of clients");
 }
 
-void await_client_id() {
+void await_client_credentials() {
   mtype = CLIENT_ID;
-  dec_msgbuf mbuf;
-  printf("waiting for a client's id\n");
+  t_msgbuf mbuf;
+  printf("waiting for a client's credentials\n");
   if(msgrcv(msgid, &mbuf, sizeof(mbuf), mtype, 0) == -1)
-    panic("cannot receive upcoming client's id");
-
-  printf("received the client's id: %d\n", mbuf.i);
+    panic("cannot receive upcoming client's credentials");
+  printf("received the client's credentials: %d, %s\n", mbuf.cmsg.id, mbuf.cmsg.text);
 }
 
 void await_client_topic() {

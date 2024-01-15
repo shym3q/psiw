@@ -2,8 +2,6 @@
 // -> send message with type and priority
 
 #include <stdio.h>
-#include <string.h>
-#include <sys/ipc.h>
 #include <sys/msg.h>
 #include "../msg/types.h"
 #include "../lib/utils.h"
@@ -11,6 +9,7 @@
 msg_type mtype;
 int smsgid, cmsgid;
 key_t cid;
+char uname[14], topic[14];
 
 // The client tries to establish a connection with the server.
 
@@ -42,12 +41,13 @@ int create_client_channel() {
   return ch;
 }
 
-void send_client_id() {
+void send_client_credentials() {
   mtype = CLIENT_ID;
-  dec_msgbuf mbuf = {mtype, cid};
-  printf("sending client id: %d\n", mbuf.i);
-  if(msgsnd(smsgid, &mbuf, sizeof(key_t), 0) == -1)
-    panic("cannot send the client's id");
+  t_msgbuf mbuf = {mtype, {cid}};
+  sprintf(mbuf.cmsg.text, "%s", uname);
+  printf("sending client credentials: %d, %s\n", mbuf.cmsg.id, mbuf.cmsg.text);
+  if(msgsnd(smsgid, &mbuf, sizeof(mbuf.cmsg), 0) == -1)
+    panic("cannot send the client's credentials");
 }
 
 void subscribe() {
@@ -57,17 +57,26 @@ void subscribe() {
   if(msgsnd(smsgid, &mbuf, 0, 0) == -1)
     panic("cannot ping the server");
 
-  t_msgbuf tmbuf = {mtype, {cid, "i love rust"}};
+  t_msgbuf tmbuf = {mtype, {cid}};
+  sprintf(tmbuf.cmsg.text, "%s", topic);
   if(msgsnd(smsgid, &tmbuf, sizeof(tmbuf.cmsg), 0) == -1)
     panic("cannot send the subscription topic");
-  printf("the subscription topic send\n");
+  printf("the subscription topic sent\n");
+}
+
+void get_user_input() {
+  printf("Enter your name: ");
+  scanf("%s", uname);
+  printf("Enter a topic you want to subscribe: ");
+  scanf("%s", topic);
 }
 
 int main(int argc, char *argv[])
 {
+  get_user_input();
   establish_connection();
   cid = create_client_channel();
-  send_client_id();
+  send_client_credentials();
   subscribe();
   if(msgctl(cmsgid, IPC_RMID, NULL) == -1)
     panic("cannot close the client's queue");

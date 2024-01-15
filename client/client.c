@@ -5,8 +5,8 @@
 #include <string.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
-#include "msg/types.h"
-#include "lib/utils.h"
+#include "../msg/types.h"
+#include "../lib/utils.h"
 
 msg_type mtype;
 int smsgid, cmsgid;
@@ -16,30 +16,27 @@ key_t cid;
 // The client tries to establish a connection with the server.
 
 void establish_connection() {
-  // asking the server for clients number
+  // asking the server for a number of the clients
   mtype = REGISTER_REQUEST;
   smsgid = msgget(0x123, 0600|IPC_CREAT);
   if(smsgid == -1) 
     panic("cannot connect to the server's queue");
   
-  msg_buf mbuf = {mtype};
-  sprintf(mbuf.text, "%s", "connection request");
-  printf("sending message to the server: %s\n", mbuf.text);
-  if(msgsnd(smsgid, &mbuf, strlen(mbuf.text) + 1, 0) == -1)
+  pingbuf mbuf = {mtype};
+  printf("pinging the server\n");
+  if(msgsnd(smsgid, &mbuf, 0, 0) == -1)
     panic("cannot send the connection request");
 }
 
 int create_client_channel() {
   // fedback from the server
   mtype = CLIENTS_NUMBER;
-  msg_buf mbuf;
+  dec_msgbuf mbuf;
   msgrcv(smsgid, &mbuf, sizeof(mbuf), mtype, 0);
-  int clients_number;
-  sscanf(mbuf.text, "%d", &clients_number);
-  printf("received a number of clients: %i\n", clients_number);
+  printf("received a number of clients: %i\n", mbuf.i);
 
   // opening an own channel for upcoming messages with unique id
-  key_t ch = ftok("channel-key", clients_number);
+  key_t ch = ftok("channel-key", mbuf.i);
   cmsgid = msgget(ch, 0600 | IPC_CREAT);
   printf("created own channel: %i\n", ch);
 
@@ -48,10 +45,9 @@ int create_client_channel() {
 
 void send_client_id() {
   mtype = CLIENT_ID;
-  msg_buf mbuf = {mtype};
-  sprintf(mbuf.text, "%d", cid);
-  printf("%ld: sending client id: %s\n", mbuf.type, mbuf.text);
-  if(msgsnd(smsgid, &mbuf, strlen(mbuf.text) + 1, 0) == -1)
+  dec_msgbuf mbuf = {mtype, cid};
+  printf("sending client id: %d\n", mbuf.i);
+  if(msgsnd(smsgid, &mbuf, sizeof(key_t), 0) == -1)
     panic("cannot send the client's id");
 }
 

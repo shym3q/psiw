@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <sys/msg.h>
 #include <unistd.h>
-#include "msg/types.h"
-#include "lib/utils.h"
+#include "../msg/types.h"
+#include "../lib/utils.h"
 
 // The client is responsible for monitoring new connections and storing credentials of upcoming users in the database
 
@@ -50,20 +50,18 @@ void handle_request() {
 
 void send_clients_number() {
   mtype = CLIENTS_NUMBER;
-  msg_buf cmbuf = {mtype};
-  cn++;
-  sprintf(cmbuf.text, "%d", cn);
-  printf("sending the number of clients: %s\n", cmbuf.text);
-  if(msgsnd(msgid, &cmbuf, strlen(cmbuf.text) + 1, 0) == -1)
+  dec_msgbuf cmbuf = {mtype, ++cn};
+  printf("sending the number of clients: %d\n", cmbuf.i);
+  if(msgsnd(msgid, &cmbuf, sizeof(int), 0) == -1)
     panic("cannot send the number of clients");
 }
 
 void await_client_id() {
   mtype = CLIENT_ID;
-  msg_buf mbuf;
+  dec_msgbuf mbuf;
   printf("waiting for a client's id\n");
   if(msgrcv(msgid, &mbuf, sizeof(mbuf), mtype, 0) == -1)
     panic("cannot receive upcoming client's id");
 
-  printf("received the client's id: %s\n", mbuf.text);
+  printf("received the client's id: %d\n", mbuf.i);
 }

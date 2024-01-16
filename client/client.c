@@ -9,7 +9,32 @@
 msg_type mtype;
 int smsgid, cmsgid;
 key_t cid;
-char uname[14], topic[14];
+char uname[14], topic[14], cmsg[40];
+
+void establish_connection();
+void get_user_data();
+void send_client_credentials();
+void subscribe();
+void send_msg();
+int create_client_channel();
+
+int main(int argc, char *argv[]) {
+  get_user_data();
+  establish_connection();
+  cid = create_client_channel();
+  send_client_credentials();
+  subscribe();
+
+  for(;;) {
+    fgets(cmsg, sizeof(cmsg), stdin);
+    send_msg();
+  }
+
+  if(msgctl(cmsgid, IPC_RMID, NULL) == -1)
+    panic("cannot close the client's queue");
+
+  return 0;
+}
 
 // The client tries to establish a connection with the server.
 
@@ -26,6 +51,8 @@ void establish_connection() {
     panic("cannot send the connection request");
 }
 
+// based on the number of the clients received from the server, client generate id and opens queue with it
+
 int create_client_channel() {
   // fedback from the server
   mtype = CLIENTS_NUMBER;
@@ -41,6 +68,8 @@ int create_client_channel() {
   return ch;
 }
 
+// sends to the server a username and id
+
 void send_client_credentials() {
   mtype = CLIENT_ID;
   t_msgbuf mbuf = {mtype, {cid}};
@@ -49,6 +78,8 @@ void send_client_credentials() {
   if(msgsnd(smsgid, &mbuf, sizeof(mbuf.cmsg), 0) == -1)
     panic("cannot send the client's credentials");
 }
+
+// sends to the server a topic user wants to join
 
 void subscribe() {
   mtype = SUBSCRIBE_TOPIC;
@@ -64,22 +95,23 @@ void subscribe() {
   printf("the subscription topic sent\n");
 }
 
-void get_user_input() {
+// takes input as user credentials
+
+void get_user_data() {
   printf("Enter your name: ");
   scanf("%s", uname);
   printf("Enter a topic you want to subscribe: ");
   scanf("%s", topic);
 }
 
-int main(int argc, char *argv[])
-{
-  get_user_input();
-  establish_connection();
-  cid = create_client_channel();
-  send_client_credentials();
-  subscribe();
-  if(msgctl(cmsgid, IPC_RMID, NULL) == -1)
-    panic("cannot close the client's queue");
+void send_msg() {
+  mtype = CLIENT_MSG;
+  pingbuf pmbuf = {mtype};
+  if(msgsnd(smsgid, &pmbuf, 0, 0) == -1)
+    panic("cannot ping the server");
 
-  return 0;
+  t_msgbuf mbuf = {mtype, {cid}};
+  sprintf(mbuf.cmsg.text, "%s", cmsg);
+  if(msgsnd(smsgid, &mbuf, sizeof(mbuf.cmsg), 0) == -1)
+    panic("cannot send the message");
 }

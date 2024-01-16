@@ -11,7 +11,8 @@ typedef enum {
   REGISTER_REQUEST,
   CLIENTS_NUMBER,
   CLIENT_ID,
-  SUBSCRIBE_TOPIC
+  SUBSCRIBE_TOPIC,
+  CLIENT_MSG,
 } msg_type;
 
 typedef struct {

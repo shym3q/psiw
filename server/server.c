@@ -12,6 +12,7 @@ void handle_request();
 void send_clients_number();
 void await_client_credentials();
 void await_client_topic();
+void await_client_msg();
 
 int main(int argc, char *argv[])
 {
@@ -28,6 +29,8 @@ int main(int argc, char *argv[])
   return 0;
 }
 
+// awaits a ping from any client then serves it
+
 void handle_request() {
   mtype = GENERIC;
   pingbuf pbuf;
@@ -43,10 +46,15 @@ void handle_request() {
   case SUBSCRIBE_TOPIC:
     await_client_topic();
     break;
+  case CLIENT_MSG:
+    await_client_msg();
+    break;
   default:
     panic("invalid (so far) request received");
   }
 }
+
+// sends the number of the clients so the recipent can generate a unique identifier
 
 void send_clients_number() {
   mtype = CLIENTS_NUMBER;
@@ -73,4 +81,11 @@ void await_client_topic() {
     panic("cannot receive upcoming client's subscription topic\n");
 
   printf("received the client's (%i) subscription topic: %s\n", ctmbuf.cmsg.id, ctmbuf.cmsg.text);
+}
+
+void await_client_msg() {
+  t_msgbuf mbuf;
+  if(msgrcv(msgid, &mbuf, sizeof(mbuf), mtype, 0) == -1)
+    panic("cannot receive the message");
+  printf("received the message: %s\n", mbuf.cmsg.text);
 }

@@ -9,4 +9,9 @@ void panic(char *msg) {
   exit(-1);
 }
 
+void handle_timeout(int signum) {
+  printf("timeout occured\n");
+  exit(0);
+}
+
 #endif // !UTILS_H

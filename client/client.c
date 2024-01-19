@@ -9,7 +9,7 @@
 msg_type mtype;
 int smsgid, cmsgid;
 key_t cid;
-char uname[14], topic[14], cmsg[40];
+char uname[14], topic[14], cmsg[20];
 
 void establish_connection();
 void get_user_data();
@@ -25,8 +25,9 @@ int main(int argc, char *argv[]) {
   send_client_credentials();
   subscribe();
 
+  scanf("\n");
   for(;;) {
-    fgets(cmsg, sizeof(cmsg), stdin);
+    fgets(cmsg, 20, stdin);
     send_msg();
   }
 

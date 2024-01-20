@@ -1,15 +1,11 @@
 #ifndef HANDLERS_H
 #define HANDLERS_H
 
-#include <signal.h>
-#include <stdlib.h>
-#include <sys/types.h>
 #include <unistd.h>
-#include <stdio.h>
 #include <sys/wait.h>
+#include <signal.h>
 #include "object.h"
 #include "../lib/utils.h"
-#include "../msg/types.h"
 
 void send_clients_number(struct server*);
 void await_client_credentials(struct server*);

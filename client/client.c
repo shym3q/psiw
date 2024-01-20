@@ -1,8 +1,9 @@
 // What client can do:
 // -> send message with type and priority
 
-#include <stdio.h>
 #include <sys/msg.h>
+#include <signal.h>
+#include <stdio.h>
 #include "../msg/types.h"
 #include "../lib/utils.h"
 
@@ -16,12 +17,14 @@ void get_user_data();
 void send_client_credentials();
 void subscribe();
 void send_msg();
+void client_exit(int);
 int create_client_channel();
 
 int main(int argc, char *argv[]) {
   get_user_data();
   establish_connection();
   cid = create_client_channel();
+  signal(SIGINT, client_exit);
   send_client_credentials();
   subscribe();
 
@@ -115,4 +118,9 @@ void send_msg() {
   sprintf(mbuf.cmsg.text, "%s", cmsg);
   if(msgsnd(smsgid, &mbuf, sizeof(mbuf.cmsg), 0) == -1)
     panic("cannot send the message");
+}
+
+void client_exit(int signum) {
+  msgctl(cmsgid, IPC_RMID, NULL);
+  exit(0);
 }

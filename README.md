@@ -86,3 +86,14 @@ cmsgid: klienta
 > - wprowadzanie i wysyłanie wiadomości do serwera
 > - establish_connection: próba uzyskania dostępu do kolejki komunikatów serwer, wysłanie do serwera pinga
 > w reakcji na SIGINT kończy działanie i zwalnia kolejkę komunikatów klienta
+
+## Compilation and execution instructions
+# 1. server compilation:
+gcc server.c object.c handlers.c -o server -lrt
+# 2. server execution:
+./server
+# 3. client compilation:
+gcc client.c -o client -lrt
+# 4. client execution:
+./client
+

@@ -17,9 +17,9 @@
 **utils.h**
 - dzięki temu pliku zapewnia się, że jest on dołączany tylko raz w jednym pliku źródłowym
 - funkcje pomocnicze: ochrona przed wielokrotnym dołączaniem, czyli powtórnym zdefiniowaniu tych samych struktur, funkcji lub zmiennych, zapobiega błędom kompilacji 
-funkcja panic: obsługa błędów, wypisanie komunikatu błędu
-funkcja handle_timeout: obsługa przerwań czasowych
-#ifndef: sprawdza, czy utils_h nie jest jeszcze zdefiniowana 
+- funkcja panic: obsługa błędów, wypisanie komunikatu błędu
+- funkcja handle_timeout: obsługa przerwań czasowych
+- #ifndef: sprawdza, czy utils_h nie jest jeszcze zdefiniowana 
 
 
 **types.h**
@@ -34,27 +34,27 @@ funkcja handle_timeout: obsługa przerwań czasowych
 
 **handlers.h**
 - funkcje obsługujące różne rodzaje żądań: 
-send_clients_number: wysyłanie liczby klientów, 
-await_client_credentials: oczekiwanie na poświadczenie klienta, 
-await_client_topic: oczekiwanie na temat subskrypcji klienta, 
-await_client_msg: oczekiwanie na wiadomość klienta, 
-handle_request: główna funkcja obsługująca żądania, w zależności od otrzymanego komunikatu podejmuje różne działania: rejestracja klienta, subskrypcja tematu, odbiór wiadomości od klienta
+- send_clients_number: wysyłanie liczby klientów, 
+- await_client_credentials: oczekiwanie na poświadczenie klienta, 
+- await_client_topic: oczekiwanie na temat subskrypcji klienta, 
+- await_client_msg: oczekiwanie na wiadomość klienta, 
+- handle_request: główna funkcja obsługująca żądania, w zależności od otrzymanego komunikatu podejmuje różne działania: rejestracja klienta, subskrypcja tematu, odbiór wiadomości od klienta
 
 
 **object.h**
 - struct server: obsługa serwera
-msgid: identyfikator kolejki komunikatów dla zwykłych wiadomości od klientów
-imsgid: identyfikator kolejki komunikatów dla wewnętrznych wiadomości od serwera do procesów potomnych
-cn: liczba klientów
+- msgid: identyfikator kolejki komunikatów dla zwykłych wiadomości od klientów
+- imsgid: identyfikator kolejki komunikatów dla wewnętrznych wiadomości od serwera do procesów potomnych
+- cn: liczba klientów
 - funkcja new_server: funkcja pomocnicza, która tworzy i inincjalizuje nowy obiekt serwera: alokuje pamięć dla struktury server, inicjalizuje pola struktury server i otwiera dwie kolejki komunikatów za pomocą funkcji msgget, zwraca wskaźnik do utworzonej struktury serwera
 
 
 **bus.h**
 - struct node:
-reprezentuje węzeł w bazie klientów subskrybujących wiadomości
-cid: identyfikator klienta
-subs: wskaźnik na innych klientów o takiej samej subskrypcji
-next: wskaźnik na następny węzeł w liście
+- reprezentuje węzeł w bazie klientów subskrybujących wiadomości
+- cid: identyfikator klienta
+- subs: wskaźnik na innych klientów o takiej samej subskrypcji
+- next: wskaźnik na następny węzeł w liście
 - new_db: alokuje pamięć do nowego węzła będącego bazą danych, zwraca wskaźnik do utworzonego węzła
 - add_subscriber: służy do dodawania nowego subskrybenta do bazy danych
 - distribute: przekierowuje przechwycone wiadomości do subskrybentów o tej samej subskrypcji
@@ -85,4 +85,4 @@ cmsgid: klienta
 > - subscribe: żądanie subskrypcji na dany temat
 > - wprowadzanie i wysyłanie wiadomości do serwera
 > - establish_connection: próba uzyskania dostępu do kolejki komunikatów serwer, wysłanie do serwera pinga
-> - w reakcji na SIGINT kończy działanie i zwalnia kolejkę komunikatów klienta
+> w reakcji na SIGINT kończy działanie i zwalnia kolejkę komunikatów klienta

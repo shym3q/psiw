@@ -64,7 +64,7 @@
 - zmienne globalne:
 struct server *s: reprezentująca serwer, 
 struct node *db: reprezentująca bazę danych
-- funkcja server_exit: obsługuje sygnał SIGINT, odpowiada za zwolnienie kolejek komunikatów i pamięci oraz zakończenie programu\
+- funkcja server_exit: obsługuje sygnał SIGINT, odpowiada za zwolnienie kolejek komunikatów i pamięci oraz zakończenie programu
 - funkcja main:
 > - tworzy i inicjalizuje strukturę server za pomocą funkcji new_sever() w pliku object.h
 > - tworzy bazę danych za pomocą funkcji new_db zdefiniowanej w pliku bus.h
@@ -85,7 +85,7 @@ cmsgid: klienta
 > - subscribe: żądanie subskrypcji na dany temat
 > - wprowadzanie i wysyłanie wiadomości do serwera
 > - establish_connection: próba uzyskania dostępu do kolejki komunikatów serwer, wysłanie do serwera pinga
-> w reakcji na SIGINT kończy działanie i zwalnia kolejkę komunikatów klienta
+> - w reakcji na SIGINT kończy działanie i zwalnia kolejkę komunikatów klienta
 
 ## Compilation and execution instructions
 #### 1. Server compilation:

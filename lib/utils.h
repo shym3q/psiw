@@ -11,7 +11,7 @@ void panic(char *msg) {
 
 void handle_timeout(int signum) {
   printf("timeout occured\n");
-  exit(0);
+  exit(-1);
 }
 
 #endif // !UTILS_H

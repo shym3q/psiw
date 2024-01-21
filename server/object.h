@@ -6,15 +6,13 @@
 #include "../msg/types.h"
 
 struct server {
-  int msgid, imsgid, cn; 
-  // msg_type mtype;
+  int msgid, cn; 
 };
 
 struct server *new_server() {
   struct server *s = (struct server*)malloc(sizeof(struct server));
   // opening a message queue for clients "owned" by the server
   s->msgid = msgget(0x123, 0600|IPC_CREAT);
-  s->imsgid = msgget(0x1234, 0600|IPC_CREAT);
   s->cn = 0;
   return s;
 }

@@ -3,13 +3,13 @@
 
 struct msg {
   int id;
-  char text[1024];
+  char text[20];
 };
 
 // the internal message: a protocol from the child process
 struct prot {
-  int cn, cid;
-  char *name;
+  int type, cn, cid;
+  char name[14], topic[14];
 };
 
 enum msg_type {

@@ -11,6 +11,8 @@
 - [ ] GUI of the application defined.
 - [x] A bus / a message broker implemented (partially).
 - [ ] Closing the client with the server being informed.
+- [ ] Avoided using the global variables.
+- [ ] Avoided forking with each request.
 
 
 ## Content description

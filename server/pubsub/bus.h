@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include "../../msg/types.h"
 
 // a client node in the database
 struct cnode {
@@ -69,11 +70,19 @@ void overview(struct database *db) {
       printf("client: %i\n", c->cid);
     }
   }
+  printf("finished\n");
 }
 
 // redirects the captured message to the subscribers 
-void distribute(int sender_id, char *msg) {
-
+void distribute(struct msg *m, struct database *db) {
+  printf("looking for the records...\n");
+  for(struct tnode *curr; curr; curr = curr->next) {
+    if(m->chid == curr->tid) {
+      for(struct cnode *c; c; c = c->next) {
+        printf("adressee: %d\n", c->cid);
+      }
+    }
+  }
 }
 
 #endif // BUS_H

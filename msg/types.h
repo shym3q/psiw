@@ -3,6 +3,7 @@
 
 struct msg {
   int id;
+  int chid;
   char text[20];
 };
 

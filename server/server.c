@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
     if(pid == -1)
       panic("couldn't launch the server");
     if(pid == 0)
-      handle_request(s);
+      handle_request(s, db);
     else
       update_records(pid, s);
   }
@@ -58,13 +58,14 @@ void update_records(pid_t pid, struct server *s) {
         printf("the protocol content: %s\n", imbuf.imsg.topic);
         int chid = get_channel(db, imbuf.imsg.topic);
         channel_connect(db, chid, imbuf.imsg.cid);
+        printf("tried to assign %i id\n", imbuf.imsg.cid);
         overview(db);
-        printf("we've got %i clients", s->cn);
+        printf("we've got %i clients\n", s->cn);
         break;
-      case CLIENT_MSG:
-      default:
-        printf("an error occured\n");
-        break;
+      // case CLIENT_MSG:
+      // default:
+      //   printf("an error occured\n");
+      //   break;
     }
   }
 }

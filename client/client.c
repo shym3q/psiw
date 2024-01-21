@@ -57,6 +57,7 @@ int create_client_channel() {
   dec_msgbuf mbuf;
   msgrcv(smsgid, &mbuf, sizeof(mbuf), CLIENTS_NUMBER, 0);
   printf("received a number of clients: %i\n", mbuf.i);
+  chid = mbuf.i;
 
   // opening an own channel for upcoming messages with unique id
   key_t ch = ftok("/tmp", mbuf.i);
@@ -105,7 +106,7 @@ void send_msg() {
   if(msgsnd(smsgid, &pmbuf, 0, 0) == -1)
     panic("cannot ping the server");
 
-  t_msgbuf mbuf = {CLIENT_MSG, {cid}};
+  t_msgbuf mbuf = {CLIENT_MSG, {cid, chid}};
   sprintf(mbuf.cmsg.text, "%s", cmsg);
   if(msgsnd(smsgid, &mbuf, sizeof(mbuf.cmsg), 0) == -1)
     panic("cannot send the message");

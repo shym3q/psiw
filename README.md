@@ -66,10 +66,10 @@ struct server *s: reprezentująca serwer,
 struct node *db: reprezentująca bazę danych
 - funkcja server_exit: obsługuje sygnał SIGINT, odpowiada za zwolnienie kolejek komunikatów i pamięci oraz zakończenie programu\
 - funkcja main:
-> tworzy i inicjalizuje strukturę server za pomocą funkcji new_sever() w pliku object.h
-> tworzy bazę danych za pomocą funkcji new_db zdefiniowanej w pliku bus.h
-> sprawdza, czy udało się połączyć z kolejkami komunikatów, w przypadku niepowodzenia programn kończy działanie
-> tworzy nowy proces potomny za pomocą fork(): proces potomny obsługuje konkretne żądanie klienta za pomocą funkcji handle_request, proces rodzica czeka na zakończenie procesu potomnego, odbiera od niego protokół i wypisuje na ekran
+> - tworzy i inicjalizuje strukturę server za pomocą funkcji new_sever() w pliku object.h
+> - tworzy bazę danych za pomocą funkcji new_db zdefiniowanej w pliku bus.h
+> - sprawdza, czy udało się połączyć z kolejkami komunikatów, w przypadku niepowodzenia programn kończy działanie
+> - tworzy nowy proces potomny za pomocą fork(): proces potomny obsługuje konkretne żądanie klienta za pomocą funkcji handle_request, proces rodzica czeka na zakończenie procesu potomnego, odbiera od niego protokół i wypisuje na ekran
 - gdy program otrzyma sygnał SIGINT, czyści kolejki komunikatów, zwalnia pamięć i kończy działanie
 
 **client.c**
@@ -79,10 +79,10 @@ cmsgid: klienta
 - cid: identyfikator klienta
 - uname: nazwa klienta, topic: temat subskrypcji, cmsg: wiadomość klienta
 - funkcja main:
-> get_user_data: pobiera od użytkownika nazwę i temat subskrypcji
-> establish_connection: nazwiązuje połączenie z serwerem wysyłając żądanie rejestracji
-> send_client_credentials: wysyła do serwera dane klienta 
-> subscribe: żądanie subskrypcji na dany temat
-> wprowadzanie i wysyłanie wiadomości do serwera
-> establish_connection: próba uzyskania dostępu do kolejki komunikatów serwer, wysłanie do serwera pinga
-> w reakcji na SIGINT kończy działanie i zwalnia kolejkę komunikatów klienta
+> - get_user_data: pobiera od użytkownika nazwę i temat subskrypcji
+> - establish_connection: nazwiązuje połączenie z serwerem wysyłając żądanie rejestracji
+> - send_client_credentials: wysyła do serwera dane klienta 
+> - subscribe: żądanie subskrypcji na dany temat
+> - wprowadzanie i wysyłanie wiadomości do serwera
+> - establish_connection: próba uzyskania dostępu do kolejki komunikatów serwer, wysłanie do serwera pinga
+> - w reakcji na SIGINT kończy działanie i zwalnia kolejkę komunikatów klienta

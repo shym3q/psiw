@@ -88,12 +88,12 @@ cmsgid: klienta
 > w reakcji na SIGINT kończy działanie i zwalnia kolejkę komunikatów klienta
 
 ## Compilation and execution instructions
-### 1. server compilation:
+#### 1. Server compilation:
 gcc server.c object.c handlers.c -o server -lrt
-### 2. server execution:
+#### 2. Server execution:
 ./server
-### 3. client compilation:
+#### 3. Client compilation:
 gcc client.c -o client -lrt
-### 4. client execution:
+#### 4. Client execution:
 ./client
 

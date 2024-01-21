@@ -7,7 +7,7 @@
 #include "../msg/types.h"
 #include "../lib/utils.h"
 
-int smsgid, cmsgid;
+int smsgid, cmsgid, chid;
 key_t cid;
 char uname[14], topic[14], cmsg[20];
 

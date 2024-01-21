@@ -78,6 +78,7 @@ void await_client_topic(struct server *s, struct prot *imsg) {
     panic("cannot receive upcoming client's subscription topic\n");
   printf("received the client's (%i) subscription topic: %s\n", ctmbuf.cmsg.id, ctmbuf.cmsg.text);
   sprintf(imsg->topic, "%s", ctmbuf.cmsg.text);
+  // TODO: create channel if it doesn't exists 
 }
 
 void await_client_msg(struct server *s) {

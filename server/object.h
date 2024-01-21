@@ -6,7 +6,7 @@
 #include "../msg/types.h"
 
 struct server {
-  int msgid, cn; 
+  int msgid, cn, tn; 
 };
 
 struct server *new_server() {
@@ -14,6 +14,7 @@ struct server *new_server() {
   // opening a message queue for clients "owned" by the server
   s->msgid = msgget(0x123, 0600|IPC_CREAT);
   s->cn = 0;
+  s->tn = 0;
   return s;
 }
 

@@ -6,7 +6,7 @@
 #include <sys/wait.h>
 #include <signal.h>
 #include "object.h"
-#include "pubsub/bus.h"
+#include "bus.h"
 #include "../lib/utils.h"
 
 int send_clients_number(struct server*);
@@ -80,16 +80,16 @@ void await_client_topic(struct server *s, struct prot *imsg) {
   printf("received the client's (%i) subscription topic: %s\n", ctmbuf.cmsg.id, ctmbuf.cmsg.text);
   sprintf(imsg->topic, "%s", ctmbuf.cmsg.text);
   imsg->cid = ctmbuf.cmsg.id;
-  // TODO: create channel if it doesn't exists 
 }
+
+// void send_client_channel(struct server)
 
 void await_client_msg(struct server *s, struct database *db) {
   t_msgbuf mbuf;
   if(msgrcv(s->msgid, &mbuf, sizeof(mbuf), CLIENT_MSG, 0) == -1)
     panic("cannot receive the message");
   printf("received the message: %s", mbuf.cmsg.text);
-  printf("%d, %d, %ld", mbuf.cmsg.chid, mbuf.cmsg.id, mbuf.type);
-  distribute(&mbuf.cmsg, db);
+  distribute_msg(&mbuf.cmsg, db);
 }
 
 #endif // !HANDLERS_H

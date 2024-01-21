@@ -17,12 +17,12 @@ void send_client_credentials();
 void subscribe();
 void send_msg();
 void client_exit(int);
-int create_client_channel();
+int create_client_queue();
 
 int main(int argc, char *argv[]) {
   get_user_data();
   establish_connection();
-  cid = create_client_channel();
+  cid = create_client_queue();
   signal(SIGINT, client_exit);
   send_client_credentials();
   subscribe();
@@ -52,7 +52,7 @@ void establish_connection() {
 
 // based on the number of the clients received from the server, client generate id and opens queue with it
 
-int create_client_channel() {
+int create_client_queue() {
   // fedback from the server
   dec_msgbuf mbuf;
   msgrcv(smsgid, &mbuf, sizeof(mbuf), CLIENTS_NUMBER, 0);
@@ -80,9 +80,9 @@ void send_client_credentials() {
 // sends to the server a topic user wants to join
 
 void subscribe() {
-  pingbuf mbuf = {SUBSCRIBE_TOPIC};
+  pingbuf pbuf = {SUBSCRIBE_TOPIC};
   printf("pinging the server\n");
-  if(msgsnd(smsgid, &mbuf, 0, 0) == -1)
+  if(msgsnd(smsgid, &pbuf, 0, 0) == -1)
     panic("cannot ping the server");
 
   t_msgbuf tmbuf = {SUBSCRIBE_TOPIC, {cid}};
@@ -90,6 +90,11 @@ void subscribe() {
   if(msgsnd(smsgid, &tmbuf, sizeof(tmbuf.cmsg), 0) == -1)
     panic("cannot send the subscription topic");
   printf("the subscription topic sent\n");
+
+  dec_msgbuf cmbuf;
+  msgrcv(smsgid, &cmbuf, sizeof(cmbuf), CHANNEL_ID, 0);
+  chid = cmbuf.i;
+  printf("setting up the channel id: %d\n", chid);
 }
 
 // takes input as user credentials

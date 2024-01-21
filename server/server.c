@@ -1,5 +1,5 @@
 #include "object.h"
-#include "pubsub/bus.h"
+#include "bus.h"
 #include "handlers.h"
 #include <stdio.h>
 
@@ -48,24 +48,18 @@ void update_records(pid_t pid, struct server *s) {
     // check the child's protocol
     i_msgbuf imbuf;
     msgrcv(s->msgid, &imbuf, sizeof(imbuf), INTERNAL, 0);
-    printf("received the protocol with type: %ld\n", imbuf.type);
     switch(imbuf.imsg.type) {
       case REGISTER_REQUEST:
         s->cn = imbuf.imsg.cn;
-        printf("the protocol content: %s, %i\n", imbuf.imsg.name, imbuf.imsg.cid);
         break;
       case SUBSCRIBE_TOPIC:
-        printf("the protocol content: %s\n", imbuf.imsg.topic);
-        int chid = get_channel(db, imbuf.imsg.topic);
-        channel_connect(db, chid, imbuf.imsg.cid);
-        printf("tried to assign %i id\n", imbuf.imsg.cid);
-        overview(db);
-        printf("we've got %i clients\n", s->cn);
+        int ch = get_channel(db, imbuf.imsg.topic);
+        dec_msgbuf cmsguf = {CHANNEL_ID, ch};
+        msgsnd(s->msgid, &cmsguf, sizeof(int), 0);
+        channel_connect(db, ch, imbuf.imsg.cid);
         break;
-      // case CLIENT_MSG:
-      // default:
-      //   printf("an error occured\n");
-      //   break;
+      default:
+        printf("no protocol received\n");
     }
   }
 }

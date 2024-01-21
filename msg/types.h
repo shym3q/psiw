@@ -20,6 +20,7 @@ enum msg_type {
   CLIENTS_NUMBER,
   CLIENT_ID,
   SUBSCRIBE_TOPIC,
+  CHANNEL_ID,
   CLIENT_MSG,
 };
 

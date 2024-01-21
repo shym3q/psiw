@@ -5,11 +5,11 @@
 ## TODO:
 - [x] Connecting clients to the server.
 - [x] Partial implementation of registering a topic.
-- [ ] Splitting messages into separate channels.
+- [x] Splitting messages into separate channels.
 - [x] The client messing up a request does not block the server.
 - [x] The server handling concurrent requests.
 - [ ] GUI of the application defined.
-- [ ] A bus / a message broker implemented.
+- [x] A bus / a message broker implemented (partially).
 - [ ] Closing the client with the server being informed.
 
 

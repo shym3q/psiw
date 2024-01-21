@@ -1,19 +1,19 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-struct msg {
+struct Msg {
   int id;
   int chid;
   char text[20];
 };
 
 // the internal message: a protocol from the child process
-struct prot {
+struct Prot {
   int type, cn, cid;
   char name[14], topic[14];
 };
 
-enum msg_type {
+enum MsgTypes {
   GENERIC,
   INTERNAL,
   REGISTER_REQUEST,
@@ -26,21 +26,21 @@ enum msg_type {
 
 typedef struct {
   long type;
-  struct msg cmsg;
-} t_msgbuf;
+  struct Msg cmsg;
+} TextMsgBuf;
 
 typedef struct {
   long type;
-} pingbuf;
+} PingBuf;
 
 typedef struct {
   long type;
   int i;
-} dec_msgbuf;
+} DecMsgBuf;
 
 typedef struct {
   long type;
-  struct prot imsg;
-} i_msgbuf;
+  struct Prot imsg;
+} InternalMsgBuf;
 
 #endif // !TYPES_H

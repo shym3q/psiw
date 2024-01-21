@@ -9,22 +9,22 @@
 #include "bus.h"
 #include "../lib/utils.h"
 
-int send_clients_number(struct server*);
-void await_client_credentials(struct server*, struct prot*);
-void await_client_topic(struct server*, struct prot*);
-void await_client_msg(struct server*, struct database*);
+int send_clients_number(struct Server*);
+void await_client_credentials(struct Server*, struct Prot*);
+void await_client_topic(struct Server*, struct Prot*);
+void await_client_msg(struct Server*, struct Database*);
 
 // awaits a ping from any client then serves it
 
-void handle_request(struct server *s, struct database *db) {
-  pingbuf pbuf;
+void handle_request(struct Server *s, struct Database *db) {
+  PingBuf pbuf;
 
   // awaits for upcoming request, if the waiting takes too long the server terminates the connection
   if(msgrcv(s->msgid, &pbuf, sizeof(pbuf), GENERIC, 0) == -1)
     panic("cannot handle upcoming requests");
 
   // the child's protocol
-  struct prot imsg;
+  struct Prot imsg;
 
   signal(SIGALRM, handle_timeout);
   alarm(1);
@@ -46,24 +46,24 @@ void handle_request(struct server *s, struct database *db) {
       panic("invalid (so far) request received");
   }
   alarm(0);
-  i_msgbuf imsgbuf = {INTERNAL, imsg};
+  InternalMsgBuf imsgbuf = {INTERNAL, imsg};
   msgsnd(s->msgid, &imsgbuf, sizeof(imsgbuf.imsg), 0);
   exit(0);
 }
 
 // sends the number of the clients so the recipent can generate a unique identifier
 
-int send_clients_number(struct server *s) {
+int send_clients_number(struct Server *s) {
   printf("increasing clients number from: %d\n", s->cn);
-  dec_msgbuf cmbuf = {CLIENTS_NUMBER, ++s->cn};
+  DecMsgBuf cmbuf = {CLIENTS_NUMBER, ++s->cn};
   printf("sending the number of clients: %d\n", cmbuf.i);
   if(msgsnd(s->msgid, &cmbuf, sizeof(int), 0) == -1)
     panic("cannot send the number of clients");
   return s->cn;
 }
 
-void await_client_credentials(struct server *s, struct prot *imsg) {
-  t_msgbuf mbuf;
+void await_client_credentials(struct Server *s, struct Prot *imsg) {
+  TextMsgBuf mbuf;
   printf("waiting for a client's credentials\n");
   if(msgrcv(s->msgid, &mbuf, sizeof(mbuf), CLIENT_ID, 0) == -1)
     panic("cannot receive upcoming client's credentials");
@@ -72,8 +72,8 @@ void await_client_credentials(struct server *s, struct prot *imsg) {
   imsg->cid = mbuf.cmsg.id;
 }
 
-void await_client_topic(struct server *s, struct prot *imsg) {
-  t_msgbuf ctmbuf;
+void await_client_topic(struct Server *s, struct Prot *imsg) {
+  TextMsgBuf ctmbuf;
   printf("waiting for a client's subscription topic\n");
   if(msgrcv(s->msgid, &ctmbuf, sizeof(ctmbuf), SUBSCRIBE_TOPIC, 0) == -1)
     panic("cannot receive upcoming client's subscription topic\n");
@@ -84,8 +84,8 @@ void await_client_topic(struct server *s, struct prot *imsg) {
 
 // void send_client_channel(struct server)
 
-void await_client_msg(struct server *s, struct database *db) {
-  t_msgbuf mbuf;
+void await_client_msg(struct Server *s, struct Database *db) {
+  TextMsgBuf mbuf;
   if(msgrcv(s->msgid, &mbuf, sizeof(mbuf), CLIENT_MSG, 0) == -1)
     panic("cannot receive the message");
   printf("received the message: %s", mbuf.cmsg.text);

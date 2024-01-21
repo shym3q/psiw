@@ -44,7 +44,7 @@ void establish_connection() {
   if(smsgid == -1) 
     panic("cannot connect to the server's queue");
   
-  pingbuf mbuf = {REGISTER_REQUEST};
+  PingBuf mbuf = {REGISTER_REQUEST};
   printf("pinging the server\n");
   if(msgsnd(smsgid, &mbuf, 0, 0) == -1)
     panic("cannot send the connection request");
@@ -54,7 +54,7 @@ void establish_connection() {
 
 int create_client_queue() {
   // fedback from the server
-  dec_msgbuf mbuf;
+  DecMsgBuf mbuf;
   msgrcv(smsgid, &mbuf, sizeof(mbuf), CLIENTS_NUMBER, 0);
   printf("received a number of clients: %i\n", mbuf.i);
   chid = mbuf.i;
@@ -70,7 +70,7 @@ int create_client_queue() {
 // sends to the server a username and id
 
 void send_client_credentials() {
-  t_msgbuf mbuf = {CLIENT_ID, {cid}};
+  TextMsgBuf mbuf = {CLIENT_ID, {cid}};
   sprintf(mbuf.cmsg.text, "%s", uname);
   printf("sending client credentials: %d, %s\n", mbuf.cmsg.id, mbuf.cmsg.text);
   if(msgsnd(smsgid, &mbuf, sizeof(mbuf.cmsg), 0) == -1)
@@ -80,18 +80,18 @@ void send_client_credentials() {
 // sends to the server a topic user wants to join
 
 void subscribe() {
-  pingbuf pbuf = {SUBSCRIBE_TOPIC};
+  PingBuf pbuf = {SUBSCRIBE_TOPIC};
   printf("pinging the server\n");
   if(msgsnd(smsgid, &pbuf, 0, 0) == -1)
     panic("cannot ping the server");
 
-  t_msgbuf tmbuf = {SUBSCRIBE_TOPIC, {cid}};
+  TextMsgBuf tmbuf = {SUBSCRIBE_TOPIC, {cid}};
   sprintf(tmbuf.cmsg.text, "%s", topic);
   if(msgsnd(smsgid, &tmbuf, sizeof(tmbuf.cmsg), 0) == -1)
     panic("cannot send the subscription topic");
   printf("the subscription topic sent\n");
 
-  dec_msgbuf cmbuf;
+  DecMsgBuf cmbuf;
   msgrcv(smsgid, &cmbuf, sizeof(cmbuf), CHANNEL_ID, 0);
   chid = cmbuf.i;
   printf("setting up the channel id: %d\n", chid);
@@ -107,11 +107,11 @@ void get_user_data() {
 }
 
 void send_msg() {
-  pingbuf pmbuf = {CLIENT_MSG};
+  PingBuf pmbuf = {CLIENT_MSG};
   if(msgsnd(smsgid, &pmbuf, 0, 0) == -1)
     panic("cannot ping the server");
 
-  t_msgbuf mbuf = {CLIENT_MSG, {cid, chid}};
+  TextMsgBuf mbuf = {CLIENT_MSG, {cid, chid}};
   sprintf(mbuf.cmsg.text, "%s", cmsg);
   if(msgsnd(smsgid, &mbuf, sizeof(mbuf.cmsg), 0) == -1)
     panic("cannot send the message");

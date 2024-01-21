@@ -5,11 +5,11 @@
 
 // The server is responsible for monitoring new connections and storing credentials of upcoming users in the database
 
-struct server *s;
-struct database *db;
+struct Server *s;
+struct Database *db;
 
 void server_exit(int);
-void update_records(pid_t, struct server*);
+void update_records(pid_t, struct Server*);
 
 int main(int argc, char *argv[]) {
   // opening a message queue for clients "owned" by the server
@@ -40,13 +40,13 @@ void server_exit(int signum) {
   exit(0);
 }
 
-void update_records(pid_t pid, struct server *s) {
+void update_records(pid_t pid, struct Server *s) {
   // waits for the child process to finish serving the clients
   int wstat;
   waitpid(pid, &wstat, 0);
   if(WIFEXITED(wstat)) {
     // check the child's protocol
-    i_msgbuf imbuf;
+    InternalMsgBuf imbuf;
     msgrcv(s->msgid, &imbuf, sizeof(imbuf), INTERNAL, 0);
     switch(imbuf.imsg.type) {
       case REGISTER_REQUEST:
@@ -54,7 +54,7 @@ void update_records(pid_t pid, struct server *s) {
         break;
       case SUBSCRIBE_TOPIC:
         int ch = get_channel(db, imbuf.imsg.topic);
-        dec_msgbuf cmsguf = {CHANNEL_ID, ch};
+        DecMsgBuf cmsguf = {CHANNEL_ID, ch};
         msgsnd(s->msgid, &cmsguf, sizeof(int), 0);
         channel_connect(db, ch, imbuf.imsg.cid);
         break;

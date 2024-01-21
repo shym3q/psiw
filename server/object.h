@@ -5,12 +5,12 @@
 #include <sys/msg.h>
 #include "../msg/types.h"
 
-struct server {
+struct Server {
   int msgid, cn, tn; 
 };
 
-struct server *new_server() {
-  struct server *s = (struct server*)malloc(sizeof(struct server));
+struct Server *new_server() {
+  struct Server *s = (struct Server*)malloc(sizeof(struct Server));
   // opening a message queue for clients "owned" by the server
   s->msgid = msgget(0x123, 0600|IPC_CREAT);
   s->cn = 0;

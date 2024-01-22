@@ -1,16 +1,20 @@
 #ifndef MSG_H
 #define MSG_H
 
+#define MSG_MAX_LENGTH 240
+#define TOPIC_MAX_LENGTH 14
+#define NAME_MAX_LENGTH 14
+
 struct Msg {
   int id;
   int chid;
-  char text[20];
+  char text[MSG_MAX_LENGTH];
 };
 
 // the internal message: a protocol from the child process
 struct Prot {
   int type, cn, cid;
-  char name[14], topic[14];
+  char name[NAME_MAX_LENGTH], topic[TOPIC_MAX_LENGTH];
 };
 
 enum MsgTypes {

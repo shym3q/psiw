@@ -12,11 +12,10 @@ void server_exit(int);
 void update_records(pid_t, struct Server*);
 
 int main(int argc, char *argv[]) {
-  // opening a message queue for clients "owned" by the server
   s = new_server();
   db = new_db();
-  if(s->msgid == -1)
-    panic("cannot connect to the server queue");
+  if(s->msqid == -1)
+    panic("cannot connect the server queue");
   
   signal(SIGINT, server_exit);
   pid_t pid;
@@ -34,32 +33,30 @@ int main(int argc, char *argv[]) {
 }
 
 void server_exit(int signum) {
-  msgctl(s->msgid, IPC_RMID, NULL);
+  msgctl(s->msqid, IPC_RMID, NULL);
   free(s);
   free(db);
   exit(0);
 }
 
 void update_records(pid_t pid, struct Server *s) {
-  // waits for the child process to finish serving the clients
+  // waits for the child process to finish serving a client
   int wstat;
   waitpid(pid, &wstat, 0);
   if(WIFEXITED(wstat)) {
     // check the child's protocol
     InternalMsgBuf imbuf;
-    msgrcv(s->msgid, &imbuf, sizeof(imbuf), INTERNAL, 0);
+    msgrcv(s->msqid, &imbuf, sizeof(imbuf), INTERNAL, 0);
     switch(imbuf.imsg.type) {
       case REGISTER_REQUEST:
         s->cn = imbuf.imsg.cn;
         break;
       case SUBSCRIBE_TOPIC:
-        int ch = get_channel(db, imbuf.imsg.topic);
-        DecMsgBuf cmsguf = {CHANNEL_ID, ch};
-        msgsnd(s->msgid, &cmsguf, sizeof(int), 0);
+        int ch = get_channel_id(db, imbuf.imsg.topic);
+        DecMsgBuf cmsgbuf = {CHANNEL_ID, ch};
+        msgsnd(s->msqid, &cmsgbuf, sizeof(int), 0);
         channel_connect(db, ch, imbuf.imsg.cid);
         break;
-      default:
-        printf("no protocol received\n");
     }
   }
 }

@@ -7,79 +7,71 @@
 #include <stdio.h>
 #include "../lib/msg.h"
 
-// a client node in the database
 struct ClientNode {
-  // client id
-  int cid;
-  // pointer to the other clients with the same subscription
+  int client_id;
   struct ClientNode *next;
 };
 
-// a topic node in the database
 struct TopicNode {
-  // topic id
-  int tid;
-  char topic[14];
+  int topic_id;
+  char topic_name[MSG_MAX_LENGTH];
   struct ClientNode *clients;
   struct TopicNode *next;
 };
 
 struct Database {
-  int tn;
+  int topic_count;
   struct TopicNode *topics;
 };
 
 struct Database *new_db() {
   struct Database *db = (struct Database*)malloc(sizeof(struct Database));
-  db->tn = 0;
+  db->topic_count = 0;
   return db;
 }
 
 // searches the topic in the existing records, if it doesn't find it creates one
 
-int get_channel(struct Database *db, char t[14]) {
-  for(struct TopicNode *curr = db->topics; curr; curr = curr->next) {
-    if(!strcmp(t, curr->topic))
-      return curr->tid;
+int get_channel_id(struct Database *db, char t[14]) {
+  for(struct TopicNode *current = db->topics; current; current = current->next) {
+    if(!strcmp(t, current->topic_name))
+      return current->topic_id;
   }
   struct TopicNode *n = (struct TopicNode*)malloc(sizeof(struct TopicNode));
   n->next = db->topics;
-  n->tid = db->tn;
-  sprintf(n->topic, "%s", t);
+  n->topic_id = db->topic_count;
+  sprintf(n->topic_name, "%s", t);
   db->topics = n;
-  return db->tn++;
+  return db->topic_count++;
 }
 
 // adds the client to the appropriate channel
 
 void channel_connect(struct Database *db, int tid, int cid) {
   struct ClientNode *n = (struct ClientNode*)malloc(sizeof(struct ClientNode));
-  n->cid = cid;
-  for(struct TopicNode *curr = db->topics; curr; curr = curr->next) {
-    if(curr->tid == tid) {
-      n->next = curr->clients;
-      curr->clients = n;
+  n->client_id = cid;
+  for(struct TopicNode *current = db->topics; current; current = current->next) {
+    if(current->topic_id == tid) {
+      n->next = current->clients;
+      current->clients = n;
       break;
     }
   }
 }
 
 void send_to_client(int cid, TextMsgBuf *m) {
-  int cmsgid = msgget(cid, 0600|IPC_CREAT);
-  int s = msgsnd(cmsgid, m, sizeof(struct Msg), 0);
-  printf("send message to the client with status: %d\n", s);
+  int cmsqid = msgget(cid, 0600|IPC_CREAT);
+  msgsnd(cmsqid, m, sizeof(struct Msg), 0);
 }
 
 // redirects the captured message to the subscribers 
 
 void distribute_msg(TextMsgBuf *m, struct Database *db) {
-  printf("looking for the record %d...\n", m->cmsg.chid);
-  for(struct TopicNode *curr = db->topics; curr; curr = curr->next) {
-    printf("checking the record %d\n", curr->tid);
-    if(m->cmsg.chid == curr->tid) {
-      for(struct ClientNode *c = curr->clients; c; c = c->next) {
-        if(c->cid != m->cmsg.id)
-          send_to_client(c->cid, m);
+  for(struct TopicNode *current_topic = db->topics; current_topic; current_topic = current_topic->next) {
+    if(m->cmsg.chid == current_topic->topic_id) {
+      for(struct ClientNode *current_client = current_topic->clients; current_client; current_client = current_client->next) {
+        if(current_client->client_id != m->cmsg.id)
+          send_to_client(current_client->client_id, m);
       }
       return;
     }
@@ -89,13 +81,12 @@ void distribute_msg(TextMsgBuf *m, struct Database *db) {
 // for debugging purposes only
 
 void overview(struct Database *db) {
-  for (struct TopicNode *curr = db->topics; curr; curr = curr->next) {
-    printf("at channel: %s, there are:\n", curr->topic);
-    for (struct ClientNode *c = curr->clients; c; c = c->next) {
-      printf("client: %i\n", c->cid);
+  for (struct TopicNode *current_topic = db->topics; current_topic; current_topic = current_topic->next) {
+    printf("at channel %s there are:\n", current_topic->topic_name);
+    for (struct ClientNode *current_client = current_topic->clients; current_client; current_client = current_client->next) {
+      printf("client: %i\n", current_client->client_id);
     }
   }
-  printf("finished\n");
 }
 
 #endif // BUS_H

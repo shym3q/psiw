@@ -6,23 +6,23 @@
 
 ## Compiling:
 1. Clone this repository.
-'''
+```
 git clone https://github.com/shym3q/psiw.git && cd psiw
-'''
+```
 2. Run the build script. The output binary 'chat' should be in the in the current directory.
-'''
+```
 ./build.sh && cd bin
-'''
+```
 
 ## Usage:
 1. Launch the server.
-'''
+```
 ./chat server
-'''
+```
 2. In a separate terminals or a 'tmux' windows launch as many clients as you wish.
-'''
+```
 ./chat client
-'''
+```
 
 ## TODO:
 - [x] Connecting clients to the server.

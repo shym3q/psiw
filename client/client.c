@@ -29,19 +29,20 @@ int main(int argc, char *argv[]) {
   subscribe();
 
   pid_t pid = fork();
-  scanf("\n");
   if (pid == -1)
-    panic("cannot launch the clientn");
+    panic("cannot launch the client");
   if(pid == 0) {
     for(;;) {
+      printf("waiting for the messages\n");
       TextMsgBuf tmbuf;  
       if(msgrcv(cmsgid, &tmbuf, sizeof(tmbuf), CLIENT_MSG, 0) == -1)
-        panic("cannot receive the message\n");
+        panic("cannot receive the message");
       printf("%d: %s\n", tmbuf.cmsg.id, tmbuf.cmsg.text);
     }
   } else {
     for(;;) {
-      fgets(cmsg, 20, stdin);
+      printf("waiting for the input\n");
+      fgets(cmsg, sizeof(cmsg), stdin);
       send_msg();
     }
   }
@@ -113,13 +114,16 @@ void subscribe() {
 // takes input as user credentials
 
 void get_user_data() {
-  printf("Enter your name: ");
+  printf("Enter your name:\n");
   scanf("%s", uname);
-  printf("Enter a topic you want to subscribe: ");
+  printf("Enter a topic you want to subscribe:\n");
   scanf("%s", topic);
+  int c;
+  while ((c = getchar()) != '\n' && c != EOF);
 }
 
 void send_msg() {
+  printf("attemting to send the message\n");
   PingBuf pmbuf = {CLIENT_MSG};
   if(msgsnd(smsgid, &pmbuf, 0, 0) == -1)
     panic("cannot ping the server");

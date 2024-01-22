@@ -54,7 +54,6 @@ void handle_request(struct Server *s, struct Database *db) {
 // sends the number of the clients so the recipent can generate a unique identifier
 
 int send_clients_number(struct Server *s) {
-  printf("increasing clients number from: %d\n", s->cn);
   DecMsgBuf cmbuf = {CLIENTS_NUMBER, ++s->cn};
   printf("sending the number of clients: %d\n", cmbuf.i);
   if(msgsnd(s->msgid, &cmbuf, sizeof(int), 0) == -1)
@@ -88,7 +87,6 @@ void await_client_msg(struct Server *s, struct Database *db) {
   TextMsgBuf mbuf;
   if(msgrcv(s->msgid, &mbuf, sizeof(mbuf), CLIENT_MSG, 0) == -1)
     panic("cannot receive the message");
-  printf("received the message: %s", mbuf.cmsg.text);
   distribute_msg(&mbuf, db);
 }
 

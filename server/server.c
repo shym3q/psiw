@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
   for(;;) {
     pid = fork();
     if(pid == -1)
-      panic("couldn't launch the server");
+      panic("couldn't launch the crucial server process");
     if(pid == 0)
       handle_request(s, db);
     else

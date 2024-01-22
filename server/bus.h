@@ -2,9 +2,10 @@
 #define BUS_H
 
 #include <stdlib.h>
+#include <sys/msg.h>
 #include <string.h>
 #include <stdio.h>
-#include "../msg/types.h"
+#include "../lib/msg.h"
 
 // a client node in the database
 struct ClientNode {
@@ -63,23 +64,26 @@ void channel_connect(struct Database *db, int tid, int cid) {
   }
 }
 
+void send_to_client(int cid, TextMsgBuf *m) {
+  int cmsgid = msgget(cid, 0600|IPC_CREAT);
+  int s = msgsnd(cmsgid, m, sizeof(struct Msg), 0);
+  printf("send message to the client with status: %d\n", s);
+}
+
 // redirects the captured message to the subscribers 
 
-void distribute_msg(struct Msg *m, struct Database *db) {
-  printf("looking for the record %d...\n", m->chid);
+void distribute_msg(TextMsgBuf *m, struct Database *db) {
+  printf("looking for the record %d...\n", m->cmsg.chid);
   for(struct TopicNode *curr = db->topics; curr; curr = curr->next) {
     printf("checking the record %d\n", curr->tid);
-    if(m->chid == curr->tid) {
+    if(m->cmsg.chid == curr->tid) {
       for(struct ClientNode *c = curr->clients; c; c = c->next) {
-        printf("adressee: %d\n", c->cid);
+        if(c->cid != m->cmsg.id)
+          send_to_client(c->cid, m);
       }
       return;
     }
   }
-}
-
-void client_communicate() {
-
 }
 
 // for debugging purposes only

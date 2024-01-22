@@ -1,10 +1,11 @@
 // What client can do:
 // -> send message with type and priority
 
+#include <unistd.h>
 #include <sys/msg.h>
 #include <signal.h>
 #include <stdio.h>
-#include "../msg/types.h"
+#include "../lib/msg.h"
 #include "../lib/utils.h"
 
 int smsgid, cmsgid, chid;
@@ -27,10 +28,22 @@ int main(int argc, char *argv[]) {
   send_client_credentials();
   subscribe();
 
+  pid_t pid = fork();
   scanf("\n");
-  for(;;) {
-    fgets(cmsg, 20, stdin);
-    send_msg();
+  if (pid == -1)
+    panic("cannot launch the clientn");
+  if(pid == 0) {
+    for(;;) {
+      TextMsgBuf tmbuf;  
+      if(msgrcv(cmsgid, &tmbuf, sizeof(tmbuf), CLIENT_MSG, 0) == -1)
+        panic("cannot receive the message\n");
+      printf("%d: %s\n", tmbuf.cmsg.id, tmbuf.cmsg.text);
+    }
+  } else {
+    for(;;) {
+      fgets(cmsg, 20, stdin);
+      send_msg();
+    }
   }
 
   return 0;

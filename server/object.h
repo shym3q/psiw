@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 #include <sys/msg.h>
-#include "../msg/types.h"
+#include "../lib/msg.h"
 
 struct Server {
   int msgid, cn, tn; 

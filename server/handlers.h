@@ -89,7 +89,7 @@ void await_client_msg(struct Server *s, struct Database *db) {
   if(msgrcv(s->msgid, &mbuf, sizeof(mbuf), CLIENT_MSG, 0) == -1)
     panic("cannot receive the message");
   printf("received the message: %s", mbuf.cmsg.text);
-  distribute_msg(&mbuf.cmsg, db);
+  distribute_msg(&mbuf, db);
 }
 
 #endif // !HANDLERS_H

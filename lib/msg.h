@@ -1,5 +1,5 @@
-#ifndef TYPES_H
-#define TYPES_H
+#ifndef MSG_H
+#define MSG_H
 
 struct Msg {
   int id;
@@ -43,4 +43,4 @@ typedef struct {
   struct Prot imsg;
 } InternalMsgBuf;
 
-#endif // !TYPES_H
+#endif // !MSG_H

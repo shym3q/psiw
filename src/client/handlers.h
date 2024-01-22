@@ -66,6 +66,7 @@ void send_msg(struct Client *c) {
 
   TextMsgBuf mbuf = {CLIENT_MSG, {c->client_key, c->channel_id}};
   sprintf(mbuf.cmsg.text, "%s", c->msg);
+  sprintf(mbuf.cmsg.name, "%s", c->name);
   if(msgsnd(c->server_msqid, &mbuf, sizeof(mbuf.cmsg), 0) == -1)
     panic("cannot send the message");
 }

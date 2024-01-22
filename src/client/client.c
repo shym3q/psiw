@@ -27,7 +27,7 @@ void client_init() {
       TextMsgBuf tmbuf;  
       if(msgrcv(c->client_msqid, &tmbuf, sizeof(tmbuf), CLIENT_MSG, 0) == -1)
         panic("cannot receive the message");
-      printf("%d: %s\n", tmbuf.cmsg.id, tmbuf.cmsg.text);
+      printf("%s: %s\n", tmbuf.cmsg.name, tmbuf.cmsg.text);
     }
   } else {
     for(;;) {

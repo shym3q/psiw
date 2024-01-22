@@ -9,6 +9,7 @@ struct Msg {
   int id;
   int chid;
   char text[MSG_MAX_LENGTH];
+  char name[NAME_MAX_LENGTH];
 };
 
 // the internal message: a protocol from the child process

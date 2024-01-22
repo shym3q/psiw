@@ -1,5 +1,5 @@
-#ifndef HANDLERS_H
-#define HANDLERS_H
+#ifndef CLIENT_HANDLERS_H
+#define CLIENT_HANDLERS_H
 
 #include <sys/msg.h>
 #include "object.h"
@@ -83,4 +83,4 @@ void get_user_data(struct Client *c) {
   while ((ch = getchar()) != '\n' && ch != EOF);
 }
 
-#endif // !HANDLERS_H
+#endif // !CLIENT_HANDLERS_H

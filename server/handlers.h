@@ -1,5 +1,5 @@
-#ifndef HANDLERS_H
-#define HANDLERS_H
+#ifndef SERVER_HANDLERS_H
+#define SERVER_HANDLERS_H
 
 #include <stdio.h>
 #include <unistd.h>
@@ -91,4 +91,4 @@ void await_client_msg(struct Server *s, struct Database *db) {
   distribute_msg(&mbuf, db);
 }
 
-#endif // !HANDLERS_H
+#endif // !SERVER_HANDLERS_H

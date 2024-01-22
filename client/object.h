@@ -1,5 +1,5 @@
-#ifndef OBJECT_H
-#define OBJECT_H
+#ifndef CLIENT_OBJECT_H
+#define CLIENT_OBJECT_H
 
 #include <stdlib.h>
 #include "../lib/msg.h"
@@ -15,4 +15,4 @@ struct Client *new_client() {
   return c;
 }
 
-#endif // !OBJECT_H
+#endif // !CLIENT_OBJECT_H

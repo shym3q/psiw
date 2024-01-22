@@ -1,5 +1,5 @@
-#ifndef OBJECT_H
-#define OBJECT_H
+#ifndef SERVER_OBJECT_H
+#define SERVER_OBJECT_H
 
 #include <stdlib.h>
 #include <sys/msg.h>
@@ -41,4 +41,4 @@ struct Database *new_db() {
   return db;
 }
 
-#endif // !OBJECT_H
+#endif // !SERVER_OBJECT_H

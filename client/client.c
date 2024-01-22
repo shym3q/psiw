@@ -6,9 +6,10 @@
 
 struct Client *c;
 
+void client_init();
 void client_exit(int);
 
-int main(int argc, char *argv[]) {
+void client_init() {
   c = new_client();
   get_user_data(c);
   establish_connection(c);
@@ -34,8 +35,6 @@ int main(int argc, char *argv[]) {
       send_msg(c);
     }
   }
-
-  return 0;
 }
 
 void client_exit(int signum) {

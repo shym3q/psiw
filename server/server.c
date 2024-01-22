@@ -8,10 +8,11 @@
 struct Server *s;
 struct Database *db;
 
+void server_init();
 void server_exit(int);
 void update_records(pid_t, struct Server*);
 
-int main(int argc, char *argv[]) {
+void server_init() {
   s = new_server();
   db = new_db();
   if(s->msqid == -1)
@@ -29,7 +30,6 @@ int main(int argc, char *argv[]) {
     else
       update_records(pid, s);
   }
-  return 0;
 }
 
 void server_exit(int signum) {

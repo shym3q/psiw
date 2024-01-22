@@ -5,30 +5,8 @@
 #include <sys/msg.h>
 #include <string.h>
 #include <stdio.h>
+#include "object.h"
 #include "../lib/msg.h"
-
-struct ClientNode {
-  int client_id;
-  struct ClientNode *next;
-};
-
-struct TopicNode {
-  int topic_id;
-  char topic_name[MSG_MAX_LENGTH];
-  struct ClientNode *clients;
-  struct TopicNode *next;
-};
-
-struct Database {
-  int topic_count;
-  struct TopicNode *topics;
-};
-
-struct Database *new_db() {
-  struct Database *db = (struct Database*)malloc(sizeof(struct Database));
-  db->topic_count = 0;
-  return db;
-}
 
 // searches the topic in the existing records, if it doesn't find it creates one
 

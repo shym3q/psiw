@@ -18,4 +18,27 @@ struct Server *new_server() {
   return s;
 }
 
+struct ClientNode {
+  int client_id;
+  struct ClientNode *next;
+};
+
+struct TopicNode {
+  int topic_id;
+  char topic_name[MSG_MAX_LENGTH];
+  struct ClientNode *clients;
+  struct TopicNode *next;
+};
+
+struct Database {
+  int topic_count;
+  struct TopicNode *topics;
+};
+
+struct Database *new_db() {
+  struct Database *db = (struct Database*)malloc(sizeof(struct Database));
+  db->topic_count = 0;
+  return db;
+}
+
 #endif // !OBJECT_H

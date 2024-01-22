@@ -1,9 +1,9 @@
+// The server is responsible for monitoring new connections and storing credentials of upcoming users in the database
+
 #include "object.h"
 #include "bus.h"
 #include "handlers.h"
 #include <stdio.h>
-
-// The server is responsible for monitoring new connections and storing credentials of upcoming users in the database
 
 struct Server *s;
 struct Database *db;

@@ -25,7 +25,8 @@ git clone https://github.com/shym3q/psiw.git && cd psiw
 ```
 
 ## About
-There is a `PROTOCOL` file in this repo containing details about the code (for polish native speakers, so far).
+- There is a `PROTOCOL` file in this repo containing details about the code (for polish native speakers, so far).
+- The code was tested mainly on Arch Linux and compiled with `GCC` (version 13.2.1).
 
 ## TODO
 - [x] Connecting clients to the server.

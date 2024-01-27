@@ -6,15 +6,15 @@
 #define NAME_MAX_LENGTH 14
 
 struct Msg {
-  int id;
-  int chid;
+  int client_id;
+  int channel_id;
   char text[MSG_MAX_LENGTH];
   char name[NAME_MAX_LENGTH];
 };
 
 // the internal message: a protocol from the child process
 struct Prot {
-  int type, cn, cid;
+  int type, client_number, client_id;
   char name[NAME_MAX_LENGTH], topic[TOPIC_MAX_LENGTH];
 };
 
@@ -41,7 +41,7 @@ typedef struct {
 typedef struct {
   long type;
   int i;
-} DecMsgBuf;
+} DecimalMsgBuf;
 
 typedef struct {
   long type;

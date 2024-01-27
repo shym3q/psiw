@@ -46,9 +46,9 @@ void send_to_client(int cid, TextMsgBuf *m) {
 
 void distribute_msg(TextMsgBuf *m, struct Database *db) {
   for(struct TopicNode *current_topic = db->topics; current_topic; current_topic = current_topic->next) {
-    if(m->cmsg.chid == current_topic->topic_id) {
+    if(m->cmsg.channel_id == current_topic->topic_id) {
       for(struct ClientNode *current_client = current_topic->clients; current_client; current_client = current_client->next) {
-        if(current_client->client_id != m->cmsg.id)
+        if(current_client->client_id != m->cmsg.client_id)
           send_to_client(current_client->client_id, m);
       }
       return;

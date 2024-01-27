@@ -22,7 +22,7 @@ void establish_connection(struct Client *c) {
 
 int create_client_queue(struct Client *c) {
   // fedback from the server
-  DecMsgBuf mbuf;
+  DecimalMsgBuf mbuf;
   msgrcv(c->server_msqid, &mbuf, sizeof(mbuf), CLIENTS_NUMBER, 0);
   c->channel_id = mbuf.i;
 
@@ -54,7 +54,7 @@ void subscribe(struct Client *c) {
   if(msgsnd(c->server_msqid, &tmbuf, sizeof(tmbuf.cmsg), 0) == -1)
     panic("cannot send the subscription topic");
 
-  DecMsgBuf cmbuf;
+  DecimalMsgBuf cmbuf;
   msgrcv(c->server_msqid, &cmbuf, sizeof(cmbuf), CHANNEL_ID, 0);
   c->channel_id = cmbuf.i;
 }

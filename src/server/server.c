@@ -49,13 +49,13 @@ void update_records(pid_t pid, struct Server *s) {
     msgrcv(s->msqid, &imbuf, sizeof(imbuf), INTERNAL, 0);
     switch(imbuf.imsg.type) {
       case REGISTER_REQUEST:
-        s->cn = imbuf.imsg.cn;
+        s->client_number = imbuf.imsg.client_number;
         break;
       case SUBSCRIBE_TOPIC:
         int ch = get_channel_id(db, imbuf.imsg.topic);
-        DecMsgBuf cmsgbuf = {CHANNEL_ID, ch};
+        DecimalMsgBuf cmsgbuf = {CHANNEL_ID, ch};
         msgsnd(s->msqid, &cmsgbuf, sizeof(int), 0);
-        channel_connect(db, ch, imbuf.imsg.cid);
+        channel_connect(db, ch, imbuf.imsg.client_id);
         break;
     }
   }

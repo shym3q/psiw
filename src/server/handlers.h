@@ -30,7 +30,7 @@ void handle_request(struct Server *s, struct Database *db) {
   alarm(1);
   switch(pbuf.type) {
     case REGISTER_REQUEST:
-      prot.cn = send_clients_number(s);
+      prot.client_number = send_clients_number(s);
       await_client_credentials(s, &prot);
       prot.type = REGISTER_REQUEST;
       break;
@@ -54,11 +54,11 @@ void handle_request(struct Server *s, struct Database *db) {
 // sends the number of the clients so the recipent can generate a unique identifier
 
 int send_clients_number(struct Server *s) {
-  DecMsgBuf cmbuf = {CLIENTS_NUMBER, ++s->cn};
+  DecimalMsgBuf cmbuf = {CLIENTS_NUMBER, ++s->client_number};
   printf("sending the number of clients: %d\n", cmbuf.i);
   if(msgsnd(s->msqid, &cmbuf, sizeof(int), 0) == -1)
     panic("cannot send the number of clients");
-  return s->cn;
+  return s->client_number;
 }
 
 void await_client_credentials(struct Server *s, struct Prot *imsg) {
@@ -66,9 +66,9 @@ void await_client_credentials(struct Server *s, struct Prot *imsg) {
   printf("waiting for a client's credentials\n");
   if(msgrcv(s->msqid, &mbuf, sizeof(mbuf), CLIENT_ID, 0) == -1)
     panic("cannot receive upcoming client's credentials");
-  printf("received the client's credentials: %d, %s\n", mbuf.cmsg.id, mbuf.cmsg.text);
+  printf("received the client's credentials: %d, %s\n", mbuf.cmsg.client_id, mbuf.cmsg.text);
   sprintf(imsg->name, "%s", mbuf.cmsg.text);
-  imsg->cid = mbuf.cmsg.id;
+  imsg->client_id = mbuf.cmsg.client_id;
 }
 
 void await_client_topic(struct Server *s, struct Prot *imsg) {
@@ -76,12 +76,10 @@ void await_client_topic(struct Server *s, struct Prot *imsg) {
   printf("waiting for a client's subscription topic\n");
   if(msgrcv(s->msqid, &ctmbuf, sizeof(ctmbuf), SUBSCRIBE_TOPIC, 0) == -1)
     panic("cannot receive upcoming client's subscription topic\n");
-  printf("received the client's (%i) subscription topic: %s\n", ctmbuf.cmsg.id, ctmbuf.cmsg.text);
+  printf("received the client's (%i) subscription topic: %s\n", ctmbuf.cmsg.client_id, ctmbuf.cmsg.text);
   sprintf(imsg->topic, "%s", ctmbuf.cmsg.text);
-  imsg->cid = ctmbuf.cmsg.id;
+  imsg->client_id = ctmbuf.cmsg.client_id;
 }
-
-// void send_client_channel(struct server)
 
 void await_client_msg(struct Server *s, struct Database *db) {
   TextMsgBuf mbuf;

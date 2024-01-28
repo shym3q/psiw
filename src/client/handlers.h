@@ -1,6 +1,7 @@
 #ifndef CLIENT_HANDLERS_H
 #define CLIENT_HANDLERS_H
 
+#include <stdio.h>
 #include <sys/msg.h>
 #include "object.h"
 #include "../lib/utils.h"
@@ -36,7 +37,7 @@ int create_client_queue(struct Client *c) {
 // sends to the server a username and id
 
 void send_client_credentials(struct Client *c) {
-  TextMsgBuf mbuf = {CLIENT_ID, {c->client_key}};
+  TextMsgBuf mbuf = {CLIENT_ID, {c->client_key, c->subscription_type}};
   sprintf(mbuf.cmsg.text, "%s", c->name);
   if(msgsnd(c->server_msqid, &mbuf, sizeof(mbuf.cmsg), 0) == -1)
     panic("cannot send the client's credentials");
@@ -78,7 +79,10 @@ void get_user_data(struct Client *c) {
   scanf("%s", c->name);
   printf("Enter a topic you want to subscribe: ");
   scanf("%s", c->topic);
-
+  while(c->subscription_type != PERMAMENT && c->subscription_type != TEMPORARY) {
+    printf("Enter your preferred subscription type (1 - permament, 2 - temporary): ");
+    scanf("%d", &c->subscription_type);
+  }
   // there is currently a strange behaviour of the "fgets" function that it reads an empty string after the above code execution
   int ch;
   while ((ch = getchar()) != '\n' && ch != EOF);

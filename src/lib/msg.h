@@ -7,6 +7,7 @@
 
 struct Msg {
   int client_id;
+  int subscription_type;
   int channel_id;
   char text[MSG_MAX_LENGTH];
   char name[NAME_MAX_LENGTH];

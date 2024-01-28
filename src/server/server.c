@@ -35,7 +35,9 @@ void server_init() {
 void server_exit(int signum) {
   msgctl(s->msqid, IPC_RMID, NULL);
   free(s);
-  free(db);
+  // free(db);
+  putchar('\n');
+  remove_db(db);
   exit(0);
 }
 

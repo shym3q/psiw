@@ -67,6 +67,7 @@ void await_client_credentials(struct Server *s, struct Prot *imsg) {
   if(msgrcv(s->msqid, &mbuf, sizeof(mbuf), CLIENT_ID, 0) == -1)
     panic("cannot receive upcoming client's credentials");
   printf("received the client's credentials: %d, %s\n", mbuf.cmsg.client_id, mbuf.cmsg.text);
+  printf("the preferred client's subscription type is: %d\n", mbuf.cmsg.subscription_type);
   sprintf(imsg->name, "%s", mbuf.cmsg.text);
   imsg->client_id = mbuf.cmsg.client_id;
 }

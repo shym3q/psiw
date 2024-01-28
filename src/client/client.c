@@ -6,7 +6,6 @@
 
 struct Client *c;
 
-void client_init();
 void client_exit(int);
 
 void client_init() {
@@ -39,5 +38,7 @@ void client_init() {
 
 void client_exit(int signum) {
   msgctl(c->client_msqid, IPC_RMID, NULL);
+  free(c);
+  putchar('\n');
   exit(0);
 }

@@ -4,6 +4,7 @@
 #include "bus.h"
 #include "handlers.h"
 #include <stdio.h>
+#include <sys/msg.h>
 
 struct Server *s;
 struct Database *db;
@@ -35,7 +36,7 @@ void server_init() {
 void server_exit(int signum) {
   msgctl(s->msqid, IPC_RMID, NULL);
   free(s);
-  remove_db(db);
+  free(db);
   putchar('\n');
   exit(0);
 }
@@ -57,6 +58,13 @@ void update_records(pid_t pid, struct Server *s) {
         DecimalMsgBuf cmsgbuf = {CHANNEL_ID, ch};
         msgsnd(s->msqid, &cmsgbuf, sizeof(int), 0);
         channel_connect(db, ch, imbuf.imsg.client_id, imbuf.imsg.subscription_type, imbuf.imsg.msg_left);
+        break;
+      case CLIENT_MSG:
+        for(int i = 0; i < imbuf.imsg.client_number; i++) {
+          DecimalMsgBuf buf;
+          msgrcv(s->msqid, &buf, sizeof(buf), RECORD_ID, 0);
+          update_msg_left(buf.i, db);
+        }
         break;
     }
   }

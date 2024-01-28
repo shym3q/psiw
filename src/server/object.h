@@ -41,17 +41,4 @@ struct Database *new_db() {
   return db;
 }
 
-void remove_db(struct Database *db) {
-  for(struct TopicNode *current_topic = db->topics; current_topic;) {
-    for(struct ClientNode *current_client = current_topic->clients; current_client;) {
-      struct ClientNode *temp_client = current_client;
-      current_client = current_client->next;
-      free(temp_client);
-    }
-    struct TopicNode *temp_topic = current_topic;
-    current_topic = current_topic->next;
-    free(temp_topic);
-  }
-}
-
 #endif // !SERVER_OBJECT_H

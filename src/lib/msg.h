@@ -29,6 +29,7 @@ enum MsgTypes {
   SUBSCRIBE_TOPIC,
   CHANNEL_ID,
   CLIENT_MSG,
+  RECORD_ID
 };
 
 typedef struct {

@@ -12,7 +12,7 @@
 int send_clients_number(struct Server*);
 void await_client_credentials(struct Server*, struct Prot*);
 void await_client_topic(struct Server*, struct Prot*);
-void await_client_msg(struct Server*, struct Database*);
+int await_client_msg(struct Server*, struct Database*);
 
 // awaits a ping from any client then serves it
 
@@ -39,7 +39,7 @@ void handle_request(struct Server *s, struct Database *db) {
       prot.type = SUBSCRIBE_TOPIC;
       break;
     case CLIENT_MSG:
-      await_client_msg(s, db);
+      prot.client_number = await_client_msg(s, db);
       prot.type = CLIENT_MSG;
       break;
     default:
@@ -83,12 +83,12 @@ void await_client_topic(struct Server *s, struct Prot *imsg) {
   imsg->msg_left = mbuf.cmsg.msg_number_requested;
 }
 
-void await_client_msg(struct Server *s, struct Database *db) {
+int await_client_msg(struct Server *s, struct Database *db) {
   TextMsgBuf mbuf;
   if(msgrcv(s->msqid, &mbuf, sizeof(mbuf), CLIENT_MSG, 0) == -1)
     panic("cannot receive the message");
   printf("redirecting a new message\n");
-  distribute_msg(&mbuf, db);
+  return distribute_msg(&mbuf, db, s);
 }
 
 #endif // !SERVER_HANDLERS_H

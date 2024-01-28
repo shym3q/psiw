@@ -25,9 +25,11 @@ int get_channel_id(struct Database *db, char t[14]) {
 
 // adds the client to the appropriate channel
 
-void channel_connect(struct Database *db, int tid, int cid) {
+void channel_connect(struct Database *db, int tid, int cid, int stype, int mleft) {
   struct ClientNode *n = (struct ClientNode*)malloc(sizeof(struct ClientNode));
   n->client_id = cid;
+  n->subscription_type = stype;
+  n->messages_left = mleft;
   for(struct TopicNode *current = db->topics; current; current = current->next) {
     if(current->topic_id == tid) {
       n->next = current->clients;
@@ -62,7 +64,7 @@ void overview(struct Database *db) {
   for (struct TopicNode *current_topic = db->topics; current_topic; current_topic = current_topic->next) {
     printf("at channel %s there are:\n", current_topic->topic_name);
     for (struct ClientNode *current_client = current_topic->clients; current_client; current_client = current_client->next) {
-      printf("client: %i\n", current_client->client_id);
+      printf("client: %i, %i, %i\n", current_client->client_id, current_client->subscription_type, current_client->messages_left);
     }
   }
 }

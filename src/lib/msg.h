@@ -8,6 +8,7 @@
 struct Msg {
   int client_id;
   int subscription_type;
+  int msg_number_requested;
   int channel_id;
   char text[MSG_MAX_LENGTH];
   char name[NAME_MAX_LENGTH];
@@ -15,7 +16,7 @@ struct Msg {
 
 // the internal message: a protocol from the child process
 struct Prot {
-  int type, client_number, client_id;
+  int type, client_number, client_id, subscription_type, msg_left;
   char name[NAME_MAX_LENGTH], topic[TOPIC_MAX_LENGTH];
 };
 

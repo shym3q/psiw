@@ -54,9 +54,9 @@ void handle_request(struct Server *s, struct Database *db) {
 // sends the number of the clients so the recipent can generate a unique identifier
 
 int send_clients_number(struct Server *s) {
-  DecimalMsgBuf cmbuf = {CLIENTS_NUMBER, ++s->client_number};
-  printf("sending the number of clients: %d\n", cmbuf.i);
-  if(msgsnd(s->msqid, &cmbuf, sizeof(int), 0) == -1)
+  DecimalMsgBuf mbuf = {CLIENTS_NUMBER, ++s->client_number};
+  printf("sending the number of clients: %d\n", mbuf.i);
+  if(msgsnd(s->msqid, &mbuf, sizeof(int), 0) == -1)
     panic("cannot send the number of clients");
   return s->client_number;
 }
@@ -67,19 +67,20 @@ void await_client_credentials(struct Server *s, struct Prot *imsg) {
   if(msgrcv(s->msqid, &mbuf, sizeof(mbuf), CLIENT_ID, 0) == -1)
     panic("cannot receive upcoming client's credentials");
   printf("received the client's credentials: %d, %s\n", mbuf.cmsg.client_id, mbuf.cmsg.text);
-  printf("the preferred client's subscription type is: %d\n", mbuf.cmsg.subscription_type);
   sprintf(imsg->name, "%s", mbuf.cmsg.text);
   imsg->client_id = mbuf.cmsg.client_id;
 }
 
 void await_client_topic(struct Server *s, struct Prot *imsg) {
-  TextMsgBuf ctmbuf;
+  TextMsgBuf mbuf;
   printf("waiting for a client's subscription topic\n");
-  if(msgrcv(s->msqid, &ctmbuf, sizeof(ctmbuf), SUBSCRIBE_TOPIC, 0) == -1)
+  if(msgrcv(s->msqid, &mbuf, sizeof(mbuf), SUBSCRIBE_TOPIC, 0) == -1)
     panic("cannot receive upcoming client's subscription topic\n");
-  printf("received the client's (%i) subscription topic: %s\n", ctmbuf.cmsg.client_id, ctmbuf.cmsg.text);
-  sprintf(imsg->topic, "%s", ctmbuf.cmsg.text);
-  imsg->client_id = ctmbuf.cmsg.client_id;
+  printf("received the client's (%i) subscription topic: %s\n", mbuf.cmsg.client_id, mbuf.cmsg.text);
+  sprintf(imsg->topic, "%s", mbuf.cmsg.text);
+  imsg->client_id = mbuf.cmsg.client_id;
+  imsg->subscription_type = mbuf.cmsg.subscription_type;
+  imsg->msg_left = mbuf.cmsg.msg_number_requested;
 }
 
 void await_client_msg(struct Server *s, struct Database *db) {

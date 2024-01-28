@@ -19,7 +19,7 @@ struct Server *new_server() {
 }
 
 struct ClientNode {
-  int client_id;
+  int client_id, subscription_type, messages_left;
   struct ClientNode *next;
 };
 

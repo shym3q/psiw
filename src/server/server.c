@@ -35,9 +35,8 @@ void server_init() {
 void server_exit(int signum) {
   msgctl(s->msqid, IPC_RMID, NULL);
   free(s);
-  // free(db);
-  putchar('\n');
   remove_db(db);
+  putchar('\n');
   exit(0);
 }
 
@@ -57,7 +56,7 @@ void update_records(pid_t pid, struct Server *s) {
         int ch = get_channel_id(db, imbuf.imsg.topic);
         DecimalMsgBuf cmsgbuf = {CHANNEL_ID, ch};
         msgsnd(s->msqid, &cmsgbuf, sizeof(int), 0);
-        channel_connect(db, ch, imbuf.imsg.client_id);
+        channel_connect(db, ch, imbuf.imsg.client_id, imbuf.imsg.subscription_type, imbuf.imsg.msg_left);
         break;
     }
   }

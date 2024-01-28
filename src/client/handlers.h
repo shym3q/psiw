@@ -37,7 +37,7 @@ int create_client_queue(struct Client *c) {
 // sends to the server a username and id
 
 void send_client_credentials(struct Client *c) {
-  TextMsgBuf mbuf = {CLIENT_ID, {c->client_key, c->subscription_type}};
+  TextMsgBuf mbuf = {CLIENT_ID, {c->client_key}};
   sprintf(mbuf.cmsg.text, "%s", c->name);
   if(msgsnd(c->server_msqid, &mbuf, sizeof(mbuf.cmsg), 0) == -1)
     panic("cannot send the client's credentials");
@@ -50,7 +50,7 @@ void subscribe(struct Client *c) {
   if(msgsnd(c->server_msqid, &pbuf, 0, 0) == -1)
     panic("cannot ping the server");
 
-  TextMsgBuf tmbuf = {SUBSCRIBE_TOPIC, {c->client_key}};
+  TextMsgBuf tmbuf = {SUBSCRIBE_TOPIC, {c->client_key, c->subscription_type, c->msg_number}};
   sprintf(tmbuf.cmsg.text, "%s", c->topic);
   if(msgsnd(c->server_msqid, &tmbuf, sizeof(tmbuf.cmsg), 0) == -1)
     panic("cannot send the subscription topic");
@@ -82,6 +82,10 @@ void get_user_data(struct Client *c) {
   while(c->subscription_type != PERMAMENT && c->subscription_type != TEMPORARY) {
     printf("Enter your preferred subscription type (1 - permament, 2 - temporary): ");
     scanf("%d", &c->subscription_type);
+  }
+  while(c->subscription_type == TEMPORARY && c->msg_number <= 0) {
+    printf("Enter the number of messages you would like to receive: ");
+    scanf("%d", &c->msg_number);
   }
   // there is currently a strange behaviour of the "fgets" function that it reads an empty string after the above code execution
   int ch;

@@ -87,6 +87,10 @@ void get_user_data(struct Client *c) {
     printf("Enter the number of messages you would like to receive: ");
     scanf("%d", &c->msg_number);
   }
+  while(c->is_async < 0 || c->is_async > 1) {
+    printf("Enter your preferred way of receiving new messages (1 - async, 0 - sync): ");
+    scanf("%d", &c->is_async);
+  }
   // there is currently a strange behaviour of the "fgets" function that it reads an empty string after the above code execution
   int ch;
   while ((ch = getchar()) != '\n' && ch != EOF);

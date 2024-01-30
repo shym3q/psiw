@@ -1,6 +1,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <stdio.h>
+#include <string.h>
 #include "handlers.h"
 #include "../lib/utils.h"
 
@@ -21,17 +22,30 @@ void client_init() {
   if (pid == -1)
     panic("cannot launch the client");
 
-  if(pid == 0) {
-    for(;;) {
-      TextMsgBuf tmbuf;  
-      if(msgrcv(c->client_msqid, &tmbuf, sizeof(tmbuf), CLIENT_MSG, 0) == -1)
-        panic("cannot receive the message");
-      printf("%s: %s\n", tmbuf.cmsg.name, tmbuf.cmsg.text);
+  if(c->is_async) {
+    if(pid == 0) {
+      for(;;) {
+        TextMsgBuf tmbuf;  
+        if(msgrcv(c->client_msqid, &tmbuf, sizeof(tmbuf), CLIENT_MSG, 0) == -1)
+          panic("cannot receive the message");
+        printf("%s: %s\n", tmbuf.cmsg.name, tmbuf.cmsg.text);
+      }
+    } else {
+      for(;;) {
+        fgets(c->msg, MSG_MAX_LENGTH, stdin);
+        send_msg(c);
+      }
     }
   } else {
     for(;;) {
-      fgets(c->msg, MSG_MAX_LENGTH, stdin);
-      send_msg(c);
+      scanf("%s", c->msg);
+      if(strcmp(":s", c->msg) == 0) {
+        TextMsgBuf tmbuf;
+        msgrcv(c->client_msqid, &tmbuf, sizeof(tmbuf), CLIENT_MSG, 0);
+        printf("%s: %s\n", tmbuf.cmsg.name, tmbuf.cmsg.text);
+      } else {
+        send_msg(c);
+      }
     }
   }
 }
